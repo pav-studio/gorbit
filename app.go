@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"slices"
 	"strings"
-
+	"net"
 )
 
-type Registrar func(*Group)
 
 type Handler func(*Ctx)
 
@@ -21,9 +20,8 @@ type Route struct {
 	Handlers  []Handler
 }
 
-type Group struct {
-	prefix string
-	server *Server
+type Router struct {
+	routes      []Route
 	middlewares []Handler
 }
 
@@ -53,8 +51,47 @@ func (s *Server) Use(m middleware.Handler) {
 	s.middlewares = append(s.middlewares, m)
 }
 
-func (g *Group) Use(handlers ...Handler) {
-	g.middlewares = append(g.middlewares, handlers...)
+func NewRouter() *Router {
+	return &Router{
+		routes:      make([]Route, 0),
+		middlewares: make([]Handler, 0),
+	}
+}
+
+func (r *Router) addRoute(method, path string, handlers ...Handler) {
+
+	segments := splitPath(path)
+
+	route := Route{
+		Method:    method,
+		Path:      path,
+		Segments:  segments,
+		ParamKeys: parseParamKeys(segments),
+		Handlers:  handlers,
+	}
+
+	r.routes = append(r.routes, route)
+}
+
+
+func (r *Router) GET(path string, handlers ...Handler) {
+	r.addRoute(http.MethodGet, path, handlers...)
+}
+
+func (r *Router) POST(path string, handlers ...Handler) {
+	r.addRoute(http.MethodPost, path, handlers...)
+}
+
+func (r *Router) PUT(path string, handlers ...Handler) {
+	r.addRoute(http.MethodPut, path, handlers...)
+}
+
+func (r *Router) DELETE(path string, handlers ...Handler) {
+	r.addRoute(http.MethodDelete, path, handlers...)
+}
+
+func (r *Router) Use(handlers ...Handler) {
+	r.middlewares = append(r.middlewares, handlers...)
 }
 
 func matchRoute(route Route, method, path string) (bool, map[string]string) {
@@ -90,11 +127,21 @@ func matchRoute(route Route, method, path string) (bool, map[string]string) {
 	return true, params
 }
 
-func (s *Server) Mount(prefix string, register Registrar) {
+func (s *Server) Mount(prefix string, router *Router) {
 
-	group := s.Group(prefix)
+	for _, route := range router.routes {
 
-	register(group)
+		path := prefix + route.Path
+
+		handlers := append([]Handler{}, router.middlewares...)
+		handlers = append(handlers, route.Handlers...)
+
+		s.addRoute(
+			route.Method,
+			path,
+			handlers...,
+		)
+	}
 }
 
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
@@ -148,44 +195,6 @@ func parseParamKeys(parts []string) []string {
 	return keys
 }
 
-func (s *Server) Group(prefix string) *Group {
-	return &Group{
-		prefix: prefix,
-		server: s,
-	}
-}
-
-func (g *Group) GET(path string, handlers ...Handler) {
-	g.server.addRoute(
-		http.MethodGet,
-		g.prefix+path,
-		handlers...,
-	)
-}
-
-func (g *Group) PUT(path string, handlers ...Handler) {
-	g.server.addRoute(
-		http.MethodPut,
-		g.prefix+path,
-		handlers...,
-	)
-}
-
-func (g *Group) POST(path string, handlers ...Handler) {
-	g.server.addRoute(
-		http.MethodPost,
-		g.prefix+path,
-		handlers...,
-	)
-}
-
-func (g *Group) DELETE(path string, handlers ...Handler) {
-	g.server.addRoute(
-		http.MethodDelete,
-		g.prefix+path,
-		handlers...,
-	)
-}
 
 func (s *Server) addRoute(method, path string, handlers ...Handler) {
 
@@ -219,22 +228,57 @@ func (s *Server) DELETE(path string, handlers ...Handler) {
 	s.addRoute(http.MethodDelete, path, handlers...)
 }
 
-func (s *Server) Start() error {
-	address := "http://localhost" + s.port
 
+func getLocalIP() string {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+
+	for _, iface := range interfaces {
+		if iface.Flags&net.FlagUp == 0 ||
+			iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		addrs, _ := iface.Addrs()
+
+		for _, addr := range addrs {
+			ipnet, ok := addr.(*net.IPNet)
+			if !ok || ipnet.IP.IsLoopback() {
+				continue
+			}
+
+			ip := ipnet.IP.To4()
+			if ip != nil {
+				return ip.String()
+			}
+		}
+	}
+
+	return ""
+}
+
+
+
+
+func (s *Server) Start() error {
+	local := "http://localhost" + s.port
+	public := "http://" + getLocalIP() + s.port
 	fmt.Printf(`
 						
 		╔══════════════════════════════════════════════════════╗
 		║                      G O N O D E                     ║
 		╠══════════════════════════════════════════════════════╣
 		║   Server      Running                                ║
+		║   Public IP   %-39s║
 		║   Listening   %-39s║
 		║   Routes      %-39d║
 		║   Middleware  %-39d║
 		║   Status      Ready to accept requests               ║
 		╚══════════════════════════════════════════════════════╝
 
-	`, address, len(s.routes), len(s.middlewares))
+	`, public, local, len(s.routes), len(s.middlewares))
 
 	var handler http.Handler = s.mux
 

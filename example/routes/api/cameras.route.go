@@ -2,13 +2,14 @@ package api
 
 import gn "gonode"
 
-func RegisterCameraRoutes(group *gn.Group) {
+var Camera = gn.NewRouter()
 
-	group.POST("/add", func(c *gn.Ctx) {
+func init() {
+	Camera.POST("/add", func(c *gn.Ctx) {
 		c.String(200, "camera added")
 	})
 
-	group.GET("/get", func(c *gn.Ctx) {
+	Camera.GET("/get", func(c *gn.Ctx) {
 		c.String(200, "camera list")
 	})
 }

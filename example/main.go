@@ -16,7 +16,7 @@ func main() {
 		c.String(200, "healthy")
 	})
 
-	app.Mount("/cameras", api.RegisterCameraRoutes)
+	app.Mount("/cameras", api.Camera)
 
 	app.Start()
 }
