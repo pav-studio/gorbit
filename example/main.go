@@ -1,9 +1,9 @@
 package main
 
 import (
-	gn "gonode"
-	"gonode/example/routes/api"
-	"gonode/middleware"
+	gn "github.com/pav-studio/gonode"
+	"github.com/pav-studio/gonode/example/routes/api"
+	"github.com/pav-studio/gonode/middleware"
 )
 
 func main() {
