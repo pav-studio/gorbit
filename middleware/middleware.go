@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"strconv"
+	gn "gonode"
 )
 
 type Handler func(http.Handler) http.Handler
@@ -44,8 +45,22 @@ func DefaultCORS() CORSOptions {
 	}
 }
 
+func AllowAllCORS() gn.Handler {
+    return func(c *gn.Ctx) {
 
-func CORS(options ...CORSOptions) Handler {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+        c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+        c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+
+        if c.Request.Method == "OPTIONS" {
+            c.Writer.WriteHeader(204)
+            return
+        }
+
+        c.Next()
+    }
+}
+func CORS(options ...CORSOptions) gn.Handler {
 
 	config := DefaultCORS()
 
@@ -53,59 +68,51 @@ func CORS(options ...CORSOptions) Handler {
 		config = options[0]
 	}
 
-	return func(next http.Handler) http.Handler {
+	return func(c *gn.Ctx) {
 
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := c.Writer.Header()
 
-			w.Header().Set(
-				"Access-Control-Allow-Origin",
-				strings.Join(config.AllowOrigins, ","),
+		h.Set(
+			"Access-Control-Allow-Origin",
+			strings.Join(config.AllowOrigins, ", "),
+		)
+
+		h.Set(
+			"Access-Control-Allow-Methods",
+			strings.Join(config.AllowMethods, ", "),
+		)
+
+		h.Set(
+			"Access-Control-Allow-Headers",
+			strings.Join(config.AllowHeaders, ", "),
+		)
+
+		if len(config.ExposeHeaders) > 0 {
+			h.Set(
+				"Access-Control-Expose-Headers",
+				strings.Join(config.ExposeHeaders, ", "),
 			)
+		}
 
-			w.Header().Set(
-				"Access-Control-Allow-Methods",
-				strings.Join(config.AllowMethods, ", "),
+		if config.AllowCredentials {
+			h.Set(
+				"Access-Control-Allow-Credentials",
+				"true",
 			)
+		}
 
-			w.Header().Set(
-				"Access-Control-Allow-Headers",
-				strings.Join(config.AllowHeaders, ", "),
+		if config.MaxAge > 0 {
+			h.Set(
+				"Access-Control-Max-Age",
+				strconv.Itoa(config.MaxAge),
 			)
+		}
 
-			if len(config.ExposeHeaders) > 0 {
-				w.Header().Set(
-					"Access-Control-Expose-Headers",
-					strings.Join(config.ExposeHeaders, ", "),
-				)
-			}
+		if c.Request.Method == http.MethodOptions {
+			c.Writer.WriteHeader(http.StatusNoContent)
+			return
+		}
 
-			if config.AllowCredentials {
-				w.Header().Set(
-					"Access-Control-Allow-Credentials",
-					"true",
-				)
-			}
-
-			if config.MaxAge > 0 {
-				w.Header().Set(
-					"Access-Control-Max-Age",
-					http.Header{
-						"Age": []string{},
-					}.Get("Age"),
-				)
-
-				w.Header().Set(
-					"Access-Control-Max-Age",
-					strconv.Itoa(config.MaxAge),
-				)
-			}
-
-			if r.Method == http.MethodOptions {
-				w.WriteHeader(http.StatusNoContent)
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		})
+		c.Next()
 	}
 }

@@ -2,22 +2,25 @@ package gonode
 
 import (
 	"fmt"
-	"gonode/middleware"
 	"net/http"
-	"slices"
 	"strings"
 	"net"
+	"github.com/google/uuid"
+	coderws "github.com/coder/websocket"
 )
 
 
 type Handler func(*Ctx)
+type WSHandler func(*WSClient)
 
 type Route struct {
-	Method    string
-	Path      string
-	Segments  []string
+	Method string
+	Path string
+	Segments []string
 	ParamKeys []string
-	Handlers  []Handler
+	Handlers []Handler
+	WebSocket bool
+	WSHandler WSHandler
 }
 
 type Router struct {
@@ -28,8 +31,9 @@ type Router struct {
 type Server struct {
 	mux         *http.ServeMux
 	port        string
-	middlewares []middleware.Handler
-	routes []Route
+	middlewares []Handler
+	routes      []Route
+	ws *WSManager
 }
 
 
@@ -40,6 +44,13 @@ func New(port int) *Server {
 	server := &Server{
 		mux:  http.NewServeMux(),
 		port: portValue,
+
+		routes: make([]Route, 0),
+
+		ws: &WSManager{
+			clients: make(map[string]*WSClient),
+			rooms:   make(map[string]map[string]*WSClient),
+		},
 	}
 
 	server.mux.HandleFunc("/", server.handleRequest)
@@ -47,9 +58,27 @@ func New(port int) *Server {
 	return server
 }
 
-func (s *Server) Use(m middleware.Handler) {
-	s.middlewares = append(s.middlewares, m)
+
+func (s *Server) Use(h Handler) {
+	s.middlewares = append(s.middlewares, h)
 }
+
+func (s *Server) WS(path string, handler WSHandler) {
+
+	segments := splitPath(path)
+
+	route := Route{
+		Method:     http.MethodGet,
+		Path:       path,
+		Segments:   segments,
+		ParamKeys:  parseParamKeys(segments),
+		WebSocket:  true,
+		WSHandler:  handler,
+	}
+
+	s.routes = append(s.routes, route)
+}
+
 
 func NewRouter() *Router {
 	return &Router{
@@ -63,11 +92,13 @@ func (r *Router) addRoute(method, path string, handlers ...Handler) {
 	segments := splitPath(path)
 
 	route := Route{
-		Method:    method,
-		Path:      path,
-		Segments:  segments,
-		ParamKeys: parseParamKeys(segments),
-		Handlers:  handlers,
+		Method:     method,
+		Path:       path,
+		Segments:   segments,
+		ParamKeys:  parseParamKeys(segments),
+		Handlers:   handlers,
+		WebSocket:  false,
+		WSHandler:  nil,
 	}
 
 	r.routes = append(r.routes, route)
@@ -136,6 +167,16 @@ func (s *Server) Mount(prefix string, router *Router) {
 		handlers := append([]Handler{}, router.middlewares...)
 		handlers = append(handlers, route.Handlers...)
 
+
+		if route.WebSocket {
+
+			route.Path = prefix + route.Path
+
+			s.routes = append(s.routes, route)
+
+			continue
+		}
+
 		s.addRoute(
 			route.Method,
 			path,
@@ -152,6 +193,41 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 		if !ok {
 			continue
+		}
+
+		if route.WebSocket {
+
+			conn, err := coderws.Accept(w, r, nil)
+
+			if err != nil {
+				return
+			}
+
+			client := &WSClient{
+				ID: uuid.NewString(),
+
+				Conn: conn,
+
+				Context: r.Context(),
+
+				manager: s.ws,
+
+				events: make(map[string]EventHandler),
+			}
+
+			s.ws.clients[client.ID] = client
+
+			route.WSHandler(client)
+
+			if client.onConnect != nil {
+				client.onConnect(client)
+			}
+
+			client.Listen()
+
+			delete(s.ws.clients, client.ID)
+
+			return
 		}
 
 		ctx := &Ctx{
@@ -280,11 +356,5 @@ func (s *Server) Start() error {
 
 	`, public, local, len(s.routes), len(s.middlewares))
 
-	var handler http.Handler = s.mux
-
-	for _, v := range slices.Backward(s.middlewares) {
-		handler = v(handler)
-	}
-
-	return http.ListenAndServe(s.port, handler)
+	return http.ListenAndServe(s.port, s.mux)
 }

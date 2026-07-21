@@ -10,7 +10,7 @@ func main() {
 
 	app := gn.New(3000)
 
-	app.Use(middleware.CORS())
+	app.Use(middleware.AllowAllCORS())
 
 	app.GET("/status", func(c *gn.Ctx) {
 		c.String(200, "healthy")
