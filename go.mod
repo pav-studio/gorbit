@@ -1,4 +1,4 @@
-module gonode
+module github.com/pav-studio/gonode
 
 go 1.26.5
 
