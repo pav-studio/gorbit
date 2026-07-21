@@ -1,6 +1,6 @@
 package api
 
-import gn "github.com/pav-studio/gonode"
+import gn "github.com/pav-studio/gorbit"
 
 var Camera = gn.NewRouter()
 

@@ -1,7 +1,7 @@
-# Gonode
+# gorbit
 
 <p align="center">
-  <img src="website/static/icon.png" alt="Gonode Logo" width="160"/>
+  <img src="website/static/icon.png" alt="gorbit Logo" width="160"/>
 </p>
 
 <p align="center">
@@ -18,9 +18,9 @@ A lightweight, fast, and expressive web framework for Go inspired by the simplic
 
 ---
 
-## Why Gonode?
+## Why Gorbit?
 
-Gonode is designed to provide an Express-like developer experience while embracing Go's performance and concurrency.
+Gorbit is designed to provide an Express-like developer experience while embracing Go's performance and concurrency.
 
 ### Features
 
@@ -39,7 +39,7 @@ Gonode is designed to provide an Express-like developer experience while embraci
 # Installation
 
 ```bash
-go get github.com/pav-studio/gonode
+go get github.com/pav-studio/gorbit
 ```
 
 ---
@@ -50,8 +50,8 @@ go get github.com/pav-studio/gonode
 package main
 
 import (
-	gn "github.com/pav-studio/gonode"
-	"github.com/pav-studio/gonode/middleware"
+	gn "github.com/pav-studio/gorbit"
+	"github.com/pav-studio/gorbit/middleware"
 )
 
 func main() {
@@ -340,5 +340,5 @@ This project is licensed under the MIT License.
 
 # Links
 
-* GitHub: https://github.com/pav-studio/gonode
-* Documentation: https://gonode.orbit-technologies.org/docs
+* GitHub: https://github.com/pav-studio/gorbit
+* Documentation: https://gorbit.orbit-technologies.org/docs

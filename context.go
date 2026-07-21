@@ -1,6 +1,6 @@
 
 
-package gonode
+package gorbit
 
 import (
 	"encoding/json"
