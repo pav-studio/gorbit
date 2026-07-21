@@ -1,4 +1,4 @@
-package gonode
+package gorbit
 
 import (
     "context"

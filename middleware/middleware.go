@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"strconv"
-	gn "github.com/pav-studio/gonode"
+	gn "github.com/pav-studio/gorbit"
 )
 
 type Handler func(http.Handler) http.Handler
