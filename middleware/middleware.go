@@ -46,20 +46,22 @@ func DefaultCORS() CORSOptions {
 }
 
 func AllowAllCORS() gb.Handler {
-	return func(c *gb.Ctx) {
-
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
-
-		if c.Request.Method == "OPTIONS" {
-			c.Writer.WriteHeader(204)
-			return
-		}
-
-		c.Next()
-	}
+	return CORS(CORSOptions{
+		AllowOrigins:     []string{"*"},
+		AllowMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowHeaders: []string{
+			"*",
+		},
+	})
 }
+
 func CORS(options ...CORSOptions) gb.Handler {
 
 	config := DefaultCORS()
@@ -72,10 +74,35 @@ func CORS(options ...CORSOptions) gb.Handler {
 
 		h := c.Writer.Header()
 
-		h.Set(
-			"Access-Control-Allow-Origin",
-			strings.Join(config.AllowOrigins, ", "),
-		)
+		origin := c.Header("Origin")
+
+		allowed := false
+
+		for _, o := range config.AllowOrigins {
+
+			if o == "*" || o == origin {
+				allowed = true
+				break
+			}
+		}
+
+		if allowed {
+
+			if config.AllowCredentials && origin != "" {
+
+				h.Set(
+					"Access-Control-Allow-Origin",
+					origin,
+				)
+
+			} else {
+
+				h.Set(
+					"Access-Control-Allow-Origin",
+					"*",
+				)
+			}
+		}
 
 		h.Set(
 			"Access-Control-Allow-Methods",
@@ -88,6 +115,7 @@ func CORS(options ...CORSOptions) gb.Handler {
 		)
 
 		if len(config.ExposeHeaders) > 0 {
+
 			h.Set(
 				"Access-Control-Expose-Headers",
 				strings.Join(config.ExposeHeaders, ", "),
@@ -95,6 +123,7 @@ func CORS(options ...CORSOptions) gb.Handler {
 		}
 
 		if config.AllowCredentials {
+
 			h.Set(
 				"Access-Control-Allow-Credentials",
 				"true",
@@ -102,14 +131,17 @@ func CORS(options ...CORSOptions) gb.Handler {
 		}
 
 		if config.MaxAge > 0 {
+
 			h.Set(
 				"Access-Control-Max-Age",
 				strconv.Itoa(config.MaxAge),
 			)
 		}
 
-		if c.Request.Method == http.MethodOptions {
-			c.Writer.WriteHeader(http.StatusNoContent)
+		if c.Method() == http.MethodOptions {
+
+			c.NoContent()
+			c.Abort()
 			return
 		}
 

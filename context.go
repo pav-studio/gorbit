@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"io"
 	"mime/multipart"
+	"time"
 )
 
 type Ctx struct {
@@ -18,6 +19,17 @@ type Ctx struct {
 	handlers []Handler
     index int
 }
+
+type CookieOptions struct {
+	Path     string
+	Domain   string
+	MaxAge   int
+	Expires  time.Time
+	Secure   bool
+	HttpOnly bool
+	SameSite http.SameSite
+}
+
 
 func (c *Ctx) String(status int, message string) {
 
@@ -183,18 +195,81 @@ func (c *Ctx) SetCookie(cookie *http.Cookie) {
 	http.SetCookie(c.Writer, cookie)
 }
 
+func (c *Ctx) Cookies() []*http.Cookie {
+	return c.Request.Cookies()
+}
+
+func (c *Ctx) SetCookieValue(
+	name string,
+	value string,
+	options CookieOptions,
+) {
+
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	cookie.HttpOnly = true
+	cookie.SameSite = http.SameSiteLaxMode
+	cookie.Path = "/"
+
+	if options.Path != "" {
+		cookie.Path = options.Path
+	}
+
+	if options.Domain != "" {
+		cookie.Domain = options.Domain
+	}
+
+	if options.MaxAge != 0 {
+		cookie.MaxAge = options.MaxAge
+	}
+
+	if !options.Expires.IsZero() {
+		cookie.Expires = options.Expires
+	}
+
+	if options.Secure {
+		cookie.Secure = true
+	}
+
+	if options.HttpOnly {
+		cookie.HttpOnly = true
+	}
+
+	if options.SameSite != 0 {
+		cookie.SameSite = options.SameSite
+	}
+
+	http.SetCookie(c.Writer, cookie)
+}
+
 
 /*
 c.DeleteCookie("token")
 */
-func (c *Ctx) DeleteCookie(name string) {
+func (c *Ctx) DeleteCookie(name string, options CookieOptions) {
 
-	http.SetCookie(c.Writer, &http.Cookie{
+	cookie := &http.Cookie{
 		Name:   name,
 		Value:  "",
 		Path:   "/",
 		MaxAge: -1,
-	})
+	}
+
+	if options.Path != "" {
+		cookie.Path = options.Path
+	}
+
+	if options.Domain != "" {
+		cookie.Domain = options.Domain
+	}
+
+	http.SetCookie(c.Writer, cookie)
 }
 
 
@@ -247,6 +322,13 @@ func (c *Ctx) Form(key string) string {
 	return c.Request.FormValue(key)
 }
 
+func (c *Ctx) OK(v any)
+func (c *Ctx) Created(v any)
+func (c *Ctx) BadRequest(v any)
+func (c *Ctx) Unauthorized(v any)
+func (c *Ctx) Forbidden(v any)
+func (c *Ctx) NotFound(v any)
+func (c *Ctx) InternalServerError(v any)
 
 func (c *Ctx) FileUpload(name string) (multipart.File, *multipart.FileHeader, error) {
 	return c.Request.FormFile(name)
