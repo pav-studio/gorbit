@@ -3,7 +3,7 @@ export const Theme = {
     light: {
         value:"light",
         bg: "bg-slate-50",
-        bgAlt:"bg-white",
+        btnAlt:"text-black tracking-wider hover:underline backdrop-blur-lg px-4 py-0.5 rounded-xl",
         input:"bg-slate-100 placeholder-slate-400 text-black border-slate-200 px-3",
         text: "text-black",
         code: "text-black/90 border-slate-200 bg-slate-100",
