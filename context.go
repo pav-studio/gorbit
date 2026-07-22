@@ -322,13 +322,33 @@ func (c *Ctx) Form(key string) string {
 	return c.Request.FormValue(key)
 }
 
-func (c *Ctx) OK(v any)
-func (c *Ctx) Created(v any)
-func (c *Ctx) BadRequest(v any)
-func (c *Ctx) Unauthorized(v any)
-func (c *Ctx) Forbidden(v any)
-func (c *Ctx) NotFound(v any)
-func (c *Ctx) InternalServerError(v any)
+func (c *Ctx) OK(v any) {
+	c.JSON(http.StatusOK, v)
+}
+
+func (c *Ctx) Created(v any) {
+	c.JSON(http.StatusCreated, v)
+}
+
+func (c *Ctx) BadRequest(v any) {
+	c.JSON(http.StatusBadRequest, v)
+}
+
+func (c *Ctx) Unauthorized(v any) {
+	c.JSON(http.StatusUnauthorized, v)
+}
+
+func (c *Ctx) Forbidden(v any) {
+	c.JSON(http.StatusForbidden, v)
+}
+
+func (c *Ctx) NotFound(v any) {
+	c.JSON(http.StatusNotFound, v)
+}
+
+func (c *Ctx) InternalServerError(v any) {
+	c.JSON(http.StatusInternalServerError, v)
+}
 
 func (c *Ctx) FileUpload(name string) (multipart.File, *multipart.FileHeader, error) {
 	return c.Request.FormFile(name)
