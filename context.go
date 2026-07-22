@@ -1,23 +1,21 @@
-
-
 package gorbit
 
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"time"
 )
 
 type Ctx struct {
-	Writer  http.ResponseWriter
-	Request *http.Request
-	Params map[string]string
-	Keys map[string]any
+	Writer   http.ResponseWriter
+	Request  *http.Request
+	Params   map[string]string
+	Keys     map[string]any
 	handlers []Handler
-    index int
+	index    int
 }
 
 type CookieOptions struct {
@@ -30,19 +28,17 @@ type CookieOptions struct {
 	SameSite http.SameSite
 }
 
-
 func (c *Ctx) String(status int, message string) {
 
-    c.Writer.Header().Set(
-        "Content-Type",
-        "text/plain; charset=utf-8",
-    )
+	c.Writer.Header().Set(
+		"Content-Type",
+		"text/plain; charset=utf-8",
+	)
 
-    c.Writer.WriteHeader(status)
+	c.Writer.WriteHeader(status)
 
-    fmt.Fprint(c.Writer, message)
+	fmt.Fprint(c.Writer, message)
 }
-
 
 func (c *Ctx) JSON(status int, data any) {
 	c.Writer.Header().Set("Content-Type", "application/json")
@@ -52,13 +48,12 @@ func (c *Ctx) JSON(status int, data any) {
 
 func (c *Ctx) Next() {
 
-    c.index++
+	c.index++
 
-    if c.index < len(c.handlers) {
-        c.handlers[c.index](c)
-    }
+	if c.index < len(c.handlers) {
+		c.handlers[c.index](c)
+	}
 }
-
 
 func (c *Ctx) Param(name string) string {
 
@@ -102,7 +97,6 @@ func (c *Ctx) Cookie(name string) (string, error) {
 	return cookie.Value, nil
 }
 
-
 func (c *Ctx) Body() ([]byte, error) {
 	return io.ReadAll(c.Request.Body)
 }
@@ -113,36 +107,36 @@ func (c *Ctx) ContentType() string {
 
 func (c *Ctx) IP() string {
 
-    if ip := c.Header("X-Forwarded-For"); ip != "" {
-        return ip
-    }
+	if ip := c.Header("X-Forwarded-For"); ip != "" {
+		return ip
+	}
 
-    if ip := c.Header("X-Real-IP"); ip != "" {
-        return ip
-    }
+	if ip := c.Header("X-Real-IP"); ip != "" {
+		return ip
+	}
 
-    return c.Request.RemoteAddr
+	return c.Request.RemoteAddr
 }
 
 func (c *Ctx) Method() string {
-    return c.Request.Method
+	return c.Request.Method
 }
 
 func (c *Ctx) Path() string {
-    return c.Request.URL.Path
+	return c.Request.URL.Path
 }
 
 func (c *Ctx) Host() string {
-    return c.Request.Host
+	return c.Request.Host
 }
 
 func (c *Ctx) Scheme() string {
 
-    if c.Request.TLS != nil {
-        return "https"
-    }
+	if c.Request.TLS != nil {
+		return "https"
+	}
 
-    return "http"
+	return "http"
 }
 
 func (c *Ctx) UserAgent() string {
@@ -180,16 +174,15 @@ func (c *Ctx) NoContent() {
 	c.Writer.WriteHeader(http.StatusNoContent)
 }
 
-
 /*
-c.SetCookie(&http.Cookie{
-	Name:     "token",
-	Value:    jwt,
-	Path:     "/",
-	HttpOnly: true,
-	Secure:   true,
-	MaxAge:   3600,
-})
+	c.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    jwt,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   3600,
+	})
 */
 func (c *Ctx) SetCookie(cookie *http.Cookie) {
 	http.SetCookie(c.Writer, cookie)
@@ -248,7 +241,6 @@ func (c *Ctx) SetCookieValue(
 	http.SetCookie(c.Writer, cookie)
 }
 
-
 /*
 c.DeleteCookie("token")
 */
@@ -271,7 +263,6 @@ func (c *Ctx) DeleteCookie(name string, options CookieOptions) {
 
 	http.SetCookie(c.Writer, cookie)
 }
-
 
 func (c *Ctx) Set(key string, value any) {
 
@@ -297,10 +288,9 @@ func (c *Ctx) Abort() {
 	c.index = len(c.handlers)
 }
 
-
 func (c *Ctx) Status(status int) *Ctx {
-    c.Writer.WriteHeader(status)
-    return c
+	c.Writer.WriteHeader(status)
+	return c
 }
 
 func (c *Ctx) AbortStatus(status int) {
@@ -317,18 +307,37 @@ func (c *Ctx) BindJSON(v any) error {
 	return json.NewDecoder(c.Request.Body).Decode(v)
 }
 
-
 func (c *Ctx) Form(key string) string {
 	return c.Request.FormValue(key)
 }
 
-func (c *Ctx) OK(v any)
-func (c *Ctx) Created(v any)
-func (c *Ctx) BadRequest(v any)
-func (c *Ctx) Unauthorized(v any)
-func (c *Ctx) Forbidden(v any)
-func (c *Ctx) NotFound(v any)
-func (c *Ctx) InternalServerError(v any)
+func (c *Ctx) OK(v any) {
+	c.JSON(http.StatusOK, v)
+}
+
+func (c *Ctx) Created(v any) {
+	c.JSON(http.StatusCreated, v)
+}
+
+func (c *Ctx) BadRequest(v any) {
+	c.JSON(http.StatusBadRequest, v)
+}
+
+func (c *Ctx) Unauthorized(v any) {
+	c.JSON(http.StatusUnauthorized, v)
+}
+
+func (c *Ctx) Forbidden(v any) {
+	c.JSON(http.StatusForbidden, v)
+}
+
+func (c *Ctx) NotFound(v any) {
+	c.JSON(http.StatusNotFound, v)
+}
+
+func (c *Ctx) InternalServerError(v any) {
+	c.JSON(http.StatusInternalServerError, v)
+}
 
 func (c *Ctx) FileUpload(name string) (multipart.File, *multipart.FileHeader, error) {
 	return c.Request.FormFile(name)
