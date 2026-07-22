@@ -50,17 +50,17 @@ go get github.com/pav-studio/gorbit
 package main
 
 import (
-	gn "github.com/pav-studio/gorbit"
+	gb"github.com/pav-studio/gorbit"
 	"github.com/pav-studio/gorbit/middleware"
 )
 
 func main() {
 
-	app := gn.New(3000)
+	app := gb.New(3000)
 
 	app.Use(middleware.AllowAllCORS())
 
-	app.GET("/status", func(c *gn.Ctx) {
+	app.GET("/status", func(c *gb.Ctx) {
 		c.String(200, "healthy")
 	})
 
@@ -87,7 +87,7 @@ http://localhost:3000
 ### GET
 
 ```go
-app.GET("/users", func(c *gn.Ctx) {
+app.GET("/users", func(c *gb.Ctx) {
 	c.JSON(200, []string{"Alice", "Bob"})
 })
 ```
@@ -95,7 +95,7 @@ app.GET("/users", func(c *gn.Ctx) {
 ### POST
 
 ```go
-app.POST("/users", func(c *gn.Ctx) {
+app.POST("/users", func(c *gb.Ctx) {
 
 })
 ```
@@ -103,7 +103,7 @@ app.POST("/users", func(c *gn.Ctx) {
 ### PUT
 
 ```go
-app.PUT("/users/:id", func(c *gn.Ctx) {
+app.PUT("/users/:id", func(c *gb.Ctx) {
 
 })
 ```
@@ -111,7 +111,7 @@ app.PUT("/users/:id", func(c *gn.Ctx) {
 ### DELETE
 
 ```go
-app.DELETE("/users/:id", func(c *gn.Ctx) {
+app.DELETE("/users/:id", func(c *gb.Ctx) {
 
 })
 ```
@@ -121,7 +121,7 @@ app.DELETE("/users/:id", func(c *gn.Ctx) {
 # Route Parameters
 
 ```go
-app.GET("/users/:id", func(c *gn.Ctx) {
+app.GET("/users/:id", func(c *gb.Ctx) {
 
 	id := c.Param("id")
 
@@ -155,7 +155,7 @@ app.Use(middleware.AllowAllCORS())
 Custom middleware:
 
 ```go
-app.Use(func(c *gn.Ctx) {
+app.Use(func(c *gb.Ctx) {
 
 	println(c.Request.Method)
 
@@ -169,7 +169,7 @@ app.Use(func(c *gn.Ctx) {
 # Router Groups
 
 ```go
-api := gn.NewRouter()
+api := gb.NewRouter()
 
 api.GET("/users", handler)
 
@@ -249,9 +249,9 @@ c.Status(204)
 # WebSockets
 
 ```go
-app.WS("/chat", func(client *gn.WSClient) {
+app.WS("/chat", func(client *gb.WSClient) {
 
-	client.OnConnect(func(c *gn.WSClient) {
+	client.OnConnect(func(c *gb.WSClient) {
 		println("Connected")
 	})
 

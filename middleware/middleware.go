@@ -2,9 +2,10 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 	"strconv"
-	gn "github.com/pav-studio/gorbit"
+	"strings"
+
+	gb "github.com/pav-studio/gorbit"
 )
 
 type Handler func(http.Handler) http.Handler
@@ -26,7 +27,6 @@ type CORSOptions struct {
 	MaxAge           int
 }
 
-
 func DefaultCORS() CORSOptions {
 	return CORSOptions{
 		AllowOrigins: []string{"*"},
@@ -45,22 +45,22 @@ func DefaultCORS() CORSOptions {
 	}
 }
 
-func AllowAllCORS() gn.Handler {
-    return func(c *gn.Ctx) {
+func AllowAllCORS() gb.Handler {
+	return func(c *gb.Ctx) {
 
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-        c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
-        c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
 
-        if c.Request.Method == "OPTIONS" {
-            c.Writer.WriteHeader(204)
-            return
-        }
+		if c.Request.Method == "OPTIONS" {
+			c.Writer.WriteHeader(204)
+			return
+		}
 
-        c.Next()
-    }
+		c.Next()
+	}
 }
-func CORS(options ...CORSOptions) gn.Handler {
+func CORS(options ...CORSOptions) gb.Handler {
 
 	config := DefaultCORS()
 
@@ -68,7 +68,7 @@ func CORS(options ...CORSOptions) gn.Handler {
 		config = options[0]
 	}
 
-	return func(c *gn.Ctx) {
+	return func(c *gb.Ctx) {
 
 		h := c.Writer.Header()
 

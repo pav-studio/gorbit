@@ -1,18 +1,18 @@
 package main
 
 import (
-	gn "github.com/pav-studio/gorbit"
+	gb "github.com/pav-studio/gorbit"
 	"github.com/pav-studio/gorbit/example/routes/api"
 	"github.com/pav-studio/gorbit/middleware"
 )
 
 func main() {
 
-	app := gn.New(3000)
+	app := gb.New(3000)
 
 	app.Use(middleware.AllowAllCORS())
 
-	app.GET("/status", func(c *gn.Ctx) {
+	app.GET("/status", func(c *gb.Ctx) {
 		c.String(200, "healthy")
 	})
 

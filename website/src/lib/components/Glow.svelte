@@ -1,8 +1,15 @@
 <script lang="ts">
-    let { opacity = 0.7 } = $props();
+    let {
+        opacity = 0.55,
+        dark = "dark"
+    } = $props();
+
+    const ribbon = dark === "dark"
+        ? "#22c7ff"
+        : "#0ea5e9";
 </script>
 
-<div class="absolute inset-0 overflow-hidden pointer-events-none -z-2">
+<div class="fixed inset-0 pointer-events-none z-10 overflow-hidden">
 <svg
     class="w-full h-full"
     viewBox="0 0 1600 900"
@@ -12,219 +19,172 @@
 
 <defs>
 
-    <!-- Large Glow -->
-    <filter id="glow-large" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur stdDeviation="10"/>
+    <!-- Very soft blur -->
+    <filter
+        id="blur-xl"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+    >
+        <feGaussianBlur stdDeviation="70"/>
     </filter>
 
-    <!-- Medium Glow -->
-    <filter id="glow-medium" x="-100%" y="-100%" width="300%" height="300%">
+    <!-- Medium blur -->
+    <filter
+        id="blur-lg"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+    >
         <feGaussianBlur stdDeviation="30"/>
     </filter>
 
-    <!-- Small Glow -->
-    <filter id="glow-small" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur stdDeviation="5"/>
+    <!-- Slight blur -->
+    <filter
+        id="blur-sm"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+    >
+        <feGaussianBlur stdDeviation="8"/>
     </filter>
-
-    <!-- Cyan -->
-    <linearGradient id="cyan">
-        <stop offset="0%" stop-color="#00ADD8"/>
-        <stop offset="35%" stop-color="#55E8FF"/>
-        <stop offset="50%" stop-color="#FFFFFF"/>
-        <stop offset="65%" stop-color="#55E8FF"/>
-        <stop offset="100%" stop-color="#00ADD8"/>
-    </linearGradient>
-
-    <!-- Pink -->
-    <linearGradient id="pink">
-        <stop offset="0%" stop-color="#FF3A8D"/>
-        <stop offset="35%" stop-color="#FF78C7"/>
-        <stop offset="50%" stop-color="#FFFFFF"/>
-        <stop offset="65%" stop-color="#FF78C7"/>
-        <stop offset="100%" stop-color="#FF3A8D"/>
-    </linearGradient>
-
-    <!-- Yellow -->
-    <linearGradient id="yellow">
-        <stop offset="0%" stop-color="#FFD23F"/>
-        <stop offset="40%" stop-color="#FFE979"/>
-        <stop offset="50%" stop-color="#FFFFFF"/>
-        <stop offset="60%" stop-color="#FFE979"/>
-        <stop offset="100%" stop-color="#FFD23F"/>
-    </linearGradient>
 
 </defs>
 
-<!-- ====================================================== -->
-<!-- CYAN -->
-<!-- ====================================================== -->
 
-<g>
+<!-- ========================================= -->
+<!-- Secondary Ribbon -->
+<!-- ========================================= -->
 
-    <!-- outer glow -->
-    <path
-        d="M-120 760 C250 560 520 760 900 430 C1200 160 1500 350 1780 120"
-        stroke="url(#cyan)"
-        stroke-width="80"
-        opacity=".05"
-        fill="none"
-        filter="url(#glow-large)"
-        stroke-linecap="round"
-    />
+<!-- Huge -->
+<path
+    d="
+    M-250 760
+    C120 640
+    360 980
+    760 860
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="140"
+    opacity=".025"
+    filter="url(#blur-xl)"
+    stroke-linecap="round"
+/>
 
-    <!-- mid glow -->
-    <path
-        d="M-120 760 C250 560 520 760 900 430 C1200 160 1500 350 1780 120"
-        stroke="url(#cyan)"
-        stroke-width="42"
-        opacity=".14"
-        fill="none"
-        filter="url(#glow-medium)"
-        stroke-linecap="round"
-    />
+<!-- Medium -->
+<path
+    d="
+    M-250 760
+    C120 640
+    360 980
+    760 860
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="70"
+    opacity=".06"
+    filter="url(#blur-lg)"
+    stroke-linecap="round"
+/>
 
-    <!-- inner glow -->
-    <path
-        d="M-120 760 C250 560 520 760 900 430 C1200 160 1500 350 1780 120"
-        stroke="url(#cyan)"
-        stroke-width="18"
-        opacity=".65"
-        fill="none"
-        filter="url(#glow-small)"
-        stroke-linecap="round"
-    />
+<!-- Inner -->
+<path
+    d="
+    M-250 760
+    C120 640
+    360 980
+    760 860
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="30"
+    opacity=".12"
+    filter="url(#blur-sm)"
+    stroke-linecap="round"
+/>
 
-    <!-- white beam -->
-    <path
-        d="M-120 760 C250 560 520 760 900 430 C1200 160 1500 350 1780 120"
-        stroke="white"
-        stroke-opacity=".9"
-        stroke-width="4"
-        fill="none"
-        stroke-linecap="round"
-    />
+<!-- Core -->
+<path
+    d="
+    M-250 760
+    C120 640
+    360 980
+    760 860
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="7"
+    opacity=".25"
+    stroke-linecap="round"
+/>
 
-    <!-- color line -->
-    <path
-        d="M-120 760 C250 560 520 760 900 430 C1200 160 1500 350 1780 120"
-        stroke="url(#cyan)"
-        stroke-width="2"
-        fill="none"
-        stroke-linecap="round"
-    />
 
-</g>
+<!-- Huge dispersion -->
+<path
+    d="
+    M760 980
+    C980 760
+    1260 430
+    1820 140
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="180"
+    opacity=".035"
+    filter="url(#blur-xl)"
+    stroke-linecap="round"
+/>
 
-<!-- ====================================================== -->
-<!-- PINK -->
-<!-- ====================================================== -->
+<!-- Mid -->
+<path
+    d="
+    M760 980
+    C980 760
+    1260 430
+    1820 140
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="90"
+    opacity=".08"
+    filter="url(#blur-lg)"
+    stroke-linecap="round"
+/>
 
-<g opacity=".95">
+<!-- Inner -->
+<path
+    d="
+    M760 980
+    C980 760
+    1260 430
+    1820 140
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="42"
+    opacity=".14"
+    filter="url(#blur-sm)"
+    stroke-linecap="round"
+/>
 
-    <path
-        d="M-180 260 C180 40 480 460 820 260 C1180 70 1470 270 1750 180"
-        stroke="url(#pink)"
-        stroke-width="75"
-        opacity=".05"
-        fill="none"
-        filter="url(#glow-large)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M-180 260 C180 40 480 460 820 260 C1180 70 1470 270 1750 180"
-        stroke="url(#pink)"
-        stroke-width="38"
-        opacity=".14"
-        fill="none"
-        filter="url(#glow-medium)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M-180 260 C180 40 480 460 820 260 C1180 70 1470 270 1750 180"
-        stroke="url(#pink)"
-        stroke-width="16"
-        opacity=".65"
-        fill="none"
-        filter="url(#glow-small)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M-180 260 C180 40 480 460 820 260 C1180 70 1470 270 1750 180"
-        stroke="white"
-        stroke-opacity=".9"
-        stroke-width="4"
-        fill="none"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M-180 260 C180 40 480 460 820 260 C1180 70 1470 270 1750 180"
-        stroke="url(#pink)"
-        stroke-width="2"
-        fill="none"
-        stroke-linecap="round"
-    />
-
-</g>
-
-<!-- ====================================================== -->
-<!-- YELLOW -->
-<!-- ====================================================== -->
-
-<g>
-
-    <path
-        d="M1750 820 C1200 700 900 900 640 620 C420 430 180 650 -120 480"
-        stroke="url(#yellow)"
-        stroke-width="75"
-        opacity=".04"
-        fill="none"
-        filter="url(#glow-large)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M1750 820 C1200 700 900 900 640 620 C420 430 180 650 -120 480"
-        stroke="url(#yellow)"
-        stroke-width="40"
-        opacity=".13"
-        fill="none"
-        filter="url(#glow-medium)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M1750 820 C1200 700 900 900 640 620 C420 430 180 650 -120 480"
-        stroke="url(#yellow)"
-        stroke-width="18"
-        opacity=".65"
-        fill="none"
-        filter="url(#glow-small)"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M1750 820 C1200 700 900 900 640 620 C420 430 180 650 -120 480"
-        stroke="white"
-        stroke-opacity=".9"
-        stroke-width="4"
-        fill="none"
-        stroke-linecap="round"
-    />
-
-    <path
-        d="M1750 820 C1200 700 900 900 640 620 C420 430 180 650 -120 480"
-        stroke="url(#yellow)"
-        stroke-width="2"
-        fill="none"
-        stroke-linecap="round"
-    />
-
-</g>
+<!-- Core -->
+<path
+    d="
+    M760 980
+    C980 760
+    1260 430
+    1820 140
+    "
+    fill="none"
+    stroke={ribbon}
+    stroke-width="10"
+    opacity=".35"
+    stroke-linecap="round"
+/>
 
 </svg>
 </div>
