@@ -70,7 +70,7 @@
         </button>
     </div>
 <div class=" rounded-bl-lg rounded-br-lg text-xs md:text-lg overflow-auto">
-<pre><code >{@html html}</code></pre>
+<pre><code>{@html html}</code></pre>
 </div>
 </div>
 </div>

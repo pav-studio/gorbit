@@ -46,6 +46,8 @@
             contributors = await contribRes.json();
             commits = await commitRes.json();
 
+            console.log(repository);
+
             if (releaseRes.ok) {
                 release = await releaseRes.json();
             }
@@ -62,9 +64,9 @@
 
 <div
 id="Github"
-class=" w-screen flex items-center justify-center px-6">
+class=" w-screen flex items-center justify-center p-1 md:px-6">
 
-<div class="max-w-7xl w-full">
+<div class="md:max-w-7xl w-full">
 
     <div class="text-center mb-10">
 
@@ -84,7 +86,7 @@ Loading repository...
 
 </div>
 
-{:else}
+{:else if repository?.owner}
 
 <!-- Repo -->
 
@@ -92,7 +94,7 @@ Loading repository...
 
 <div class="flex justify-between flex-wrap gap-8">
 
-<div class="flex gap-5">
+<div class="flex flex-col gap-5">
 
 <img
 class="w-18 h-18 rounded-2xl"
@@ -305,6 +307,18 @@ alt=""
 
 </div>
 
+</div>
+
+{:else}
+
+<div class="rounded-3xl border border-red-500/40 p-6 text-center">
+    <div class="text-red-400 text-lg font-semibold">
+        Unable to load GitHub repository
+    </div>
+
+    <div class="text-slate-400 mt-2">
+        {repository?.message ?? "Unknown error"}
+    </div>
 </div>
 
 {/if}

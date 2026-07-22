@@ -34,6 +34,30 @@
         "Docs",
     ]
 
+
+    const features = [
+        {
+            icon: Workflow,
+            title: "Middleware",
+            description: "Chain reusable middleware exactly the way you want."
+        },
+        {
+            icon: Wifi,
+            title: "WebSockets",
+            description: "Built directly into the framework."
+        },
+        {
+            icon: Route,
+            title: "Routing",
+            description: "Route parameters, groups and mounting made simple."
+        },
+        {
+            icon: Rocket,
+            title: "Production Ready",
+            description: "Built for scalable APIs powered by Go's concurrency."
+        }
+    ];
+
     function scrollToSection(id) {
         const element = document.getElementById(id);
 
@@ -131,7 +155,6 @@
     </div>
 
 </div>
-
 
 <Glow bind:dark={theme.value}/>
 
@@ -249,64 +272,24 @@
 
             <!-- RIGHT -->
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                {#each features as feature}
+                    <div
+                        class="rounded-3xl flex flex-row border {theme.code} backdrop-blur-xl p-3 gap-4 md:p-7 hover:-translate-y-2 transition-all duration-300"
+                    >
+                        <feature.icon class="w-16 h-16 text-sky-500" />
 
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-7 hover:-translate-y-2 transition-all duration-300">
+                        <div class="flex flex-col items-start">
+                            <h3 class="md:mt-5 text-xl font-semibold text-sky-500">
+                                {feature.title}
+                            </h3>
 
-                    <Workflow class="w-10 h-10 text-sky-500"/>
-
-                    <h3 class="mt-5 text-xl font-semibold text-sky-500">
-                        Middleware
-                    </h3>
-
-                    <p class="mt-3 text-slate-400 leading-7">
-                        Chain reusable middleware exactly the way you want.
-                    </p>
-
-                </div>
-
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
-
-                    <Wifi class="w-10 h-10 text-sky-500"/>
-
-                    <h3 class="mt-5 text-xl font-semibold text-sky-500">
-                        WebSockets
-                    </h3>
-
-                    <p class="mt-3 text-slate-400 leading-7">
-                        Built directly into the framework.
-                    </p>
-
-                </div>
-
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
-
-                    <Route class="w-10 h-10 text-sky-500"/>
-
-                    <h3 class="mt-5 text-xl font-semibold text-sky-500">
-                        Routing
-                    </h3>
-
-                    <p class="mt-3 text-slate-400 leading-7">
-                        Route parameters, groups and mounting made simple.
-                    </p>
-
-                </div>
-
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
-
-                    <Rocket class="w-10 h-10 text-sky-500"/>
-
-                    <h3 class="mt-5 text-xl font-semibold text-sky-500">
-                        Production Ready
-                    </h3>
-
-                    <p class="mt-3 text-slate-400 leading-7">
-                        Built for scalable APIs powered by Go's concurrency.
-                    </p>
-
-                </div>
-
+                            <p class="md:mt-3 text-slate-400 md:leading-7">
+                                {feature.description}
+                            </p>
+                        </div>
+                    </div>
+                {/each}
             </div>
 
         </div>
