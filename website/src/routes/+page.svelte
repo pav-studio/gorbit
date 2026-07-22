@@ -1,4 +1,5 @@
 <script>
+	import GithubWidget from '$lib/components/GithubWidget.svelte';
 	import Glow from '$lib/components/Glow.svelte';
 	import Snippet from '$lib/components/Snippet.svelte';
 
@@ -27,8 +28,8 @@
 
     let headers = [
         "Home",
-        "QuickStart",
         "Why Gorbit?",
+        "QuickStart",
         "Github",
         "Docs",
     ]
@@ -105,7 +106,7 @@
         </div>
     </div>
 
-    <button onclick={headerActive=!headerActive} class="md:hidden cursor-pointer flex text-sky-400 font-semibold text-xl">
+    <button onclick={()=> {headerActive=!headerActive}} class="md:hidden cursor-pointer flex text-sky-400 font-semibold text-xl">
         <Menu />
     </button>
 
@@ -138,15 +139,15 @@
 <div class="w-full relative {theme.bg} overflow-x-hidden">
     
     
-    <div id="Home" class="h-screen relative  overflow-hidden w-screen max-w-screen max-h-screen flex flex-col justify-center gap-5 z-4">
+    <div id="Home" class="h-screen relative overflow-hidden w-screen max-w-screen max-h-screen flex flex-col justify-center gap-5 z-4">
     
-        <img class="w-48 mx-auto" src="icon.png" alt="">
+        <img class="w-24 md:w-48 mx-auto" src="icon.png" alt="">
     
-        <div class="text-sky-400 font-semibold text-4xl text-center tracking-wider title">
+        <div class="text-sky-400 font-semibold text-xl md:text-4xl text-center tracking-wider title">
             GORBIT
         </div>
     
-        <div class="text-center md:w-3/5 mx-auto px-8 font-semibold tracking-wide {theme.text} text-2xl {theme.value==="light"?"":""}">
+        <div class="text-center md:w-3/5 mx-auto px-8 font-semibold tracking-wide {theme.text} text-sm md:text-2xl {theme.value==="light"?"":""}">
             A lightweight, fast, and expressive web framework for Go inspired by the simplicity of Express.js.
         </div>
     
@@ -156,15 +157,15 @@
             code="  go get github.com/pav-studio/gorbit     "  
             bind:dark={theme.value}
         />
-    
 
-        <div class="flex title mt-3 mx-auto flex-row items-center gap-4">
+
+        <div class="flex title mt-3 mx-auto flex-col md:flex-row items-center gap-4">
 
             <button class="{theme.btnAlt}">
                 Documentation
             </button>
 
-            <button class="{theme.btn}">
+            <button onclick={()=> scrollToSection("QuickStart")} class="{theme.btn}">
                 QuickStart
             </button>
 
@@ -175,21 +176,21 @@
 
     <div
         id="Why Gorbit?"
-        class="relative w-screen flex items-center justify-center pt-10 pb-5"
+        class="relative w-screen flex items-center justify-center pt-15 mt-10"
         >
 
-        <div class="w-11/12 max-w-7xl grid lg:grid-cols-2 gap-20 items-center">
+        <div class="w-11/12 max-w-7xl grid lg:grid-cols-2 gap-7 md:gap-20 items-center">
 
             <!-- LEFT -->
 
             <div class="">
 
-                <div class="text-sky-500 text-sm font-semibold tracking-[0.3em] uppercase">
+                <div class="text-sky-500 text-md md:text-sm font-semibold tracking-[0.3em] uppercase">
                     Why Gorbit?
                 </div>
 
                 <h2
-                    class="mt-5 text-4xl font-bold leading-tight {theme.text}"
+                    class="mt-5 text-xl md:text-4xl font-bold leading-tight {theme.text}"
                 >
                     Everything you love about
                     <span class="text-sky-500">
@@ -206,8 +207,8 @@
                 </h2>
 
                 <p
-                    class="mt-4 text-lg leading-9 {theme.value==="dark"?"text-slate-300":"text-slate-600"}"
-                >
+                    class="mt-4 text-sm md:text-lg md:leading-9 {theme.value==="dark"?"text-slate-300":"text-slate-600"}"
+                    >
                     Gorbit gives you a familiar developer experience while
                     taking advantage of Go's speed, concurrency and simplicity.
 
@@ -219,11 +220,11 @@
 
                     <div>
 
-                        <div class="text-4xl font-bold text-sky-500">
+                        <div class="text-2xl md:text-4xl font-bold text-sky-500">
                             Minimal
                         </div>
 
-                        <div class="mt-2 text-slate-400">
+                        <div class="mt-2 text-slate-400 text-sm md:text-lg">
                             Zero unnecessary abstractions
                         </div>
 
@@ -231,11 +232,11 @@
 
                     <div>
 
-                        <div class="text-4xl font-bold text-sky-500">
+                        <div class=" text-2xl md:text-4xl font-bold text-sky-500">
                             Fast
                         </div>
 
-                        <div class="mt-2 text-slate-400">
+                        <div class="mt-2 text-sm md:text-lg text-slate-400">
                             Built on Go's performance
                         </div>
 
@@ -248,9 +249,7 @@
 
             <!-- RIGHT -->
 
-            <div class="grid grid-cols-2 gap-6 ">
-
-               
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ">
 
                 <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-7 hover:-translate-y-2 transition-all duration-300">
 
@@ -266,7 +265,7 @@
 
                 </div>
 
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-7 hover:-translate-y-2 transition-all duration-300">
+                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
 
                     <Wifi class="w-10 h-10 text-sky-500"/>
 
@@ -280,7 +279,7 @@
 
                 </div>
 
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-7 hover:-translate-y-2 transition-all duration-300">
+                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
 
                     <Route class="w-10 h-10 text-sky-500"/>
 
@@ -294,7 +293,7 @@
 
                 </div>
 
-                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-7 hover:-translate-y-2 transition-all duration-300">
+                <div class="rounded-3xl border {theme.code} backdrop-blur-xl p-3 md:p-7 hover:-translate-y-2 transition-all duration-300">
 
                     <Rocket class="w-10 h-10 text-sky-500"/>
 
@@ -315,11 +314,19 @@
     </div>
 
 
-    <div id="QuickStart"  class="my-5 relative h-screen pt-15 pb-5 overflow-y-hidden w-screen max-w-screen flex flex-col justify-center gap-5 z-4">
+    <div id="QuickStart"  class="my-5 relative pt-15 pb-5 overflow-y-hidden w-screen max-w-screen flex flex-col justify-center gap-5 z-4">
         <Snippet bind:theme title="Quickstart, paste this in your entry point file" 
             code={docs['quickstart'].data}
             bind:dark={theme.value}
          />
+    </div>
+
+
+    <div  id="Github" >
+        <GithubWidget
+            bind:theme
+            repo="pav-studio/gorbit"
+        />
     </div>
 
 </div>
