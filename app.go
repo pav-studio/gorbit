@@ -6,12 +6,14 @@ import (
 	"strings"
 	"net"
 	"github.com/google/uuid"
+	"encoding/json"
 	coderws "github.com/coder/websocket"
 )
 
 
 type Handler func(*Ctx)
 type WSHandler func(*WSClient)
+type H map[string]any
 
 type Route struct {
 	Method string
@@ -254,7 +256,12 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.NotFound(w, r)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotFound)
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"error": "Route not found",
+	})
 }
 
 
