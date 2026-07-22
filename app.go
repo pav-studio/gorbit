@@ -125,6 +125,14 @@ func (r *Router) Use(handlers ...Handler) {
 	r.middlewares = append(r.middlewares, handlers...)
 }
 
+func (r *Router) OPTIONS(path string, handlers ...Handler) {
+	r.addRoute(http.MethodOptions, path, handlers...)
+}
+
+func (s *Server) OPTIONS(path string, handlers ...Handler) {
+	s.addRoute(http.MethodOptions, path, handlers...)
+}
+
 func matchRoute(route Route, method, path string) (bool, map[string]string) {
 
 	if route.Method != method {
@@ -191,6 +199,12 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 		ok, params := matchRoute(route, r.Method, r.URL.Path)
 
+		// Automatically allow OPTIONS preflight to match the
+		// corresponding route (Express/Fiber style).
+		if !ok && r.Method == http.MethodOptions {
+			ok, params = matchRoute(route, route.Method, r.URL.Path)
+		}
+
 		if !ok {
 			continue
 		}
@@ -198,21 +212,16 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 		if route.WebSocket {
 
 			conn, err := coderws.Accept(w, r, nil)
-
 			if err != nil {
 				return
 			}
 
 			client := &WSClient{
-				ID: uuid.NewString(),
-
-				Conn: conn,
-
+				ID:      uuid.NewString(),
+				Conn:    conn,
 				Context: r.Context(),
-
 				manager: s.ws,
-
-				events: make(map[string]EventHandler),
+				events:  make(map[string]EventHandler),
 			}
 
 			s.ws.clients[client.ID] = client
@@ -230,11 +239,14 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		handlers := append([]Handler{}, s.middlewares...)
+		handlers = append(handlers, route.Handlers...)
+
 		ctx := &Ctx{
 			Writer:   w,
 			Request:  r,
 			Params:   params,
-			handlers: route.Handlers,
+			handlers: handlers,
 			index:    -1,
 		}
 
