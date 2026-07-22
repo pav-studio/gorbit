@@ -1,15 +1,15 @@
 package api
 
-import gn "github.com/pav-studio/gorbit"
+import gb "github.com/pav-studio/gorbit"
 
-var Camera = gn.NewRouter()
+var Camera = gb.NewRouter()
 
 func init() {
-	Camera.POST("/add", func(c *gn.Ctx) {
+	Camera.POST("/add", func(c *gb.Ctx) {
 		c.String(200, "camera added")
 	})
 
-	Camera.GET("/get", func(c *gn.Ctx) {
+	Camera.GET("/get", func(c *gb.Ctx) {
 		c.String(200, "camera list")
 	})
 }
