@@ -13,7 +13,7 @@ import (
 
 type Handler func(*Ctx)
 type WSHandler func(*WSClient)
-type H map[string]any
+type JSON map[string]any
 
 type Route struct {
 	Method string
@@ -35,7 +35,7 @@ type Server struct {
 	port        string
 	middlewares []Handler
 	routes      []Route
-	ws *WSManager
+	WS *WSManager
 }
 
 
@@ -46,14 +46,17 @@ func New(port int) *Server {
 	server := &Server{
 		mux:  http.NewServeMux(),
 		port: portValue,
-
 		routes: make([]Route, 0),
-
-		ws: &WSManager{
-			clients: make(map[string]*WSClient),
-			rooms:   make(map[string]map[string]*WSClient),
-		},
+		
 	}
+
+	server.WS = &WSManager{
+		server:  server,
+		clients: make(map[string]*WSClient),
+		rooms:   make(map[string]map[string]*WSClient),
+	}
+
+	setWSManager(server.WS)
 
 	server.mux.HandleFunc("/", server.handleRequest)
 
@@ -65,22 +68,16 @@ func (s *Server) Use(h Handler) {
 	s.middlewares = append(s.middlewares, h)
 }
 
-func (s *Server) WS(path string, handler WSHandler) {
 
-	segments := splitPath(path)
 
-	route := Route{
-		Method:     http.MethodGet,
-		Path:       path,
-		Segments:   segments,
-		ParamKeys:  parseParamKeys(segments),
-		WebSocket:  true,
-		WSHandler:  handler,
-	}
+func (s *Server) Static(prefix, dir string) {
+	fs := http.FileServer(http.Dir(dir))
 
-	s.routes = append(s.routes, route)
+	s.mux.Handle(
+		prefix+"/",
+		http.StripPrefix(prefix, fs),
+	)
 }
-
 
 func NewRouter() *Router {
 	return &Router{
@@ -222,11 +219,11 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 				ID:      uuid.NewString(),
 				Conn:    conn,
 				Context: r.Context(),
-				manager: s.ws,
+				manager: s.WS,
 				events:  make(map[string]EventHandler),
 			}
 
-			s.ws.clients[client.ID] = client
+			s.WS.clients[client.ID] = client
 
 			route.WSHandler(client)
 
@@ -236,7 +233,7 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 			client.Listen()
 
-			delete(s.ws.clients, client.ID)
+			delete(s.WS.clients, client.ID)
 
 			return
 		}
@@ -355,15 +352,14 @@ func getLocalIP() string {
 }
 
 
-
-
 func (s *Server) Start() error {
+	
 	local := "http://localhost" + s.port
 	public := "http://" + getLocalIP() + s.port
 	fmt.Printf(`
 						
 		╔══════════════════════════════════════════════════════╗
-		║                      G O N O D E                     ║
+		║                      G O R B I T                     ║
 		╠══════════════════════════════════════════════════════╣
 		║   Server      Running                                ║
 		║   Public IP   %-39s║
