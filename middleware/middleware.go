@@ -67,7 +67,30 @@ func CORS(options ...CORSOptions) gb.Handler {
 	config := DefaultCORS()
 
 	if len(options) > 0 {
-		config = options[0]
+
+		opt := options[0]
+
+		if len(opt.AllowOrigins) > 0 {
+			config.AllowOrigins = opt.AllowOrigins
+		}
+
+		if len(opt.AllowMethods) > 0 {
+			config.AllowMethods = opt.AllowMethods
+		}
+
+		if len(opt.AllowHeaders) > 0 {
+			config.AllowHeaders = opt.AllowHeaders
+		}
+
+		if len(opt.ExposeHeaders) > 0 {
+			config.ExposeHeaders = opt.ExposeHeaders
+		}
+
+		config.AllowCredentials = opt.AllowCredentials
+
+		if opt.MaxAge > 0 {
+			config.MaxAge = opt.MaxAge
+		}
 	}
 
 	return func(c *gb.Ctx) {

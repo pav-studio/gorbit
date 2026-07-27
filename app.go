@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"strings"
 	"net"
+	"log"
 	"github.com/google/uuid"
 	"encoding/json"
+	"context"
 	coderws "github.com/coder/websocket"
 )
 
@@ -210,30 +212,52 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 		if route.WebSocket {
 
-			conn, err := coderws.Accept(w, r, nil)
+			log.Printf("[WS] Incoming upgrade %s", r.URL.Path)
+
+			conn, err := coderws.Accept(
+				w,
+				r,
+				s.WS.Options(),
+			)
 			if err != nil {
+				log.Printf("[WS] Accept failed: %v", err)
 				return
 			}
+
+			log.Printf("[WS] Accept successful")
 
 			client := &WSClient{
 				ID:      uuid.NewString(),
 				Conn:    conn,
-				Context: r.Context(),
+				Context: context.Background(),
 				manager: s.WS,
 				events:  make(map[string]EventHandler),
 			}
 
+			log.Printf("[WS %s] Client created", client.ID)
+
 			s.WS.clients[client.ID] = client
+
+			log.Printf("[WS %s] Calling route handler", client.ID)
 
 			route.WSHandler(client)
 
+			log.Printf("[WS %s] Route handler returned", client.ID)
+
 			if client.onConnect != nil {
+				log.Printf("[WS %s] Calling OnConnect", client.ID)
 				client.onConnect(client)
 			}
 
+			log.Printf("[WS %s] Entering Listen()", client.ID)
+
 			client.Listen()
 
+			log.Printf("[WS %s] Listen() returned", client.ID)
+
 			delete(s.WS.clients, client.ID)
+
+			log.Printf("[WS %s] Client removed", client.ID)
 
 			return
 		}
@@ -370,6 +394,8 @@ func (s *Server) Start() error {
 		╚══════════════════════════════════════════════════════╝
 
 	`, public, local, len(s.routes), len(s.middlewares))
+
+	fmt.Println("")
 
 	return http.ListenAndServe(s.port, s.mux)
 }

@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"time"
+	"os"
 )
 
 type Ctx struct {
@@ -24,8 +25,43 @@ type CookieOptions struct {
 	MaxAge   int
 	Expires  time.Time
 	Secure   bool
-	HttpOnly bool
+	HttpOnly bool 
 	SameSite http.SameSite
+}
+
+type UploadedFile struct {
+	File        multipart.File
+	Header      *multipart.FileHeader
+
+	Filename    string
+	Size        int64
+	ContentType string
+}
+
+func (c *Ctx) FormFile(name string) (*UploadedFile, error) {
+	file, header, err := c.Request.FormFile(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UploadedFile{
+		File:        file,
+		Header:      header,
+		Filename:    header.Filename,
+		Size:        header.Size,
+		ContentType: header.Header.Get("Content-Type"),
+	}, nil
+}
+
+func (f *UploadedFile) SaveTo(path string) error {
+	dst, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, f.File)
+	return err
 }
 
 func (c *Ctx) String(status int, message string) {
