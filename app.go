@@ -12,11 +12,22 @@ import (
 	coderws "github.com/coder/websocket"
 )
 
-
+// Handler represents an HTTP request handler.
 type Handler func(*Ctx)
+
+// WSHandler represents a WebSocket connection handler.
 type WSHandler func(*WSClient)
+
+// JSON is a convenience type for constructing JSON responses.
+//
+// Example:
+//
+//	c.JSON(http.StatusOK, gorbit.JSON{
+//	    "message": "Hello",
+//	})
 type JSON map[string]any
 
+// Route represents a registered HTTP or WebSocket route.
 type Route struct {
 	Method string
 	Path string
@@ -27,11 +38,18 @@ type Route struct {
 	WSHandler WSHandler
 }
 
+
+// Router groups routes and middleware that can be mounted
+// onto a Server.
 type Router struct {
 	routes      []Route
 	middlewares []Handler
 }
 
+// Server represents a Gorbit application.
+//
+// A Server manages routes, middleware, static file serving,
+// and WebSocket endpoints.
 type Server struct {
 	mux         *http.ServeMux
 	port        string
@@ -40,7 +58,11 @@ type Server struct {
 	WS *WSManager
 }
 
-
+// New creates a new Server listening on the specified port.
+//
+// Example:
+//
+//	app := gorbit.New(8080)
 func New(port int) *Server {
 
 	portValue := fmt.Sprintf(":%d", port)
@@ -65,13 +87,18 @@ func New(port int) *Server {
 	return server
 }
 
-
+// Use registers one or more global middleware handlers.
+//
+// Registered middleware is executed before route handlers.
 func (s *Server) Use(h Handler) {
 	s.middlewares = append(s.middlewares, h)
 }
 
-
-
+// Static serves files from dir under the specified URL prefix.
+//
+// Example:
+//
+//	app.Static("/public", "./public")
 func (s *Server) Static(prefix, dir string) {
 	fs := http.FileServer(http.Dir(dir))
 
@@ -81,12 +108,18 @@ func (s *Server) Static(prefix, dir string) {
 	)
 }
 
+
+// NewRouter creates a new Router.
+//
+// Routers allow routes and middleware to be grouped before
+// mounting them onto a Server.
 func NewRouter() *Router {
 	return &Router{
 		routes:      make([]Route, 0),
 		middlewares: make([]Handler, 0),
 	}
 }
+
 
 func (r *Router) addRoute(method, path string, handlers ...Handler) {
 
@@ -105,34 +138,40 @@ func (r *Router) addRoute(method, path string, handlers ...Handler) {
 	r.routes = append(r.routes, route)
 }
 
-
+// GET registers a GET route.
 func (r *Router) GET(path string, handlers ...Handler) {
 	r.addRoute(http.MethodGet, path, handlers...)
 }
 
+// POST registers a POST route.
 func (r *Router) POST(path string, handlers ...Handler) {
 	r.addRoute(http.MethodPost, path, handlers...)
 }
 
+// PUT registers a PUT route.
 func (r *Router) PUT(path string, handlers ...Handler) {
 	r.addRoute(http.MethodPut, path, handlers...)
 }
 
+// DELETE registers a DELETE route.
 func (r *Router) DELETE(path string, handlers ...Handler) {
 	r.addRoute(http.MethodDelete, path, handlers...)
 }
 
-func (r *Router) Use(handlers ...Handler) {
-	r.middlewares = append(r.middlewares, handlers...)
-}
 
+// OPTIONS registers an OPTIONS route.
 func (r *Router) OPTIONS(path string, handlers ...Handler) {
 	r.addRoute(http.MethodOptions, path, handlers...)
 }
 
-func (s *Server) OPTIONS(path string, handlers ...Handler) {
-	s.addRoute(http.MethodOptions, path, handlers...)
+// Use registers middleware for the router.
+//
+// Router middleware is executed before the route handlers
+// within that router.
+func (r *Router) Use(handlers ...Handler) {
+	r.middlewares = append(r.middlewares, handlers...)
 }
+
 
 func matchRoute(route Route, method, path string) (bool, map[string]string) {
 
@@ -167,6 +206,17 @@ func matchRoute(route Route, method, path string) (bool, map[string]string) {
 	return true, params
 }
 
+
+// Mount registers all routes and middleware from the provided
+// router under the specified path prefix.
+//
+// Example:
+//
+//	api := gorbit.NewRouter()
+//
+//	api.GET("/users", GetUsers)
+//
+//	app.Mount("/api", api)
 func (s *Server) Mount(prefix string, router *Router) {
 
 	for _, route := range router.routes {
@@ -193,6 +243,8 @@ func (s *Server) Mount(prefix string, router *Router) {
 		)
 	}
 }
+
+
 
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
@@ -327,22 +379,32 @@ func (s *Server) addRoute(method, path string, handlers ...Handler) {
 	s.routes = append(s.routes, route)
 }
 
-
+// GET registers a GET route.
 func (s *Server) GET(path string, handlers ...Handler) {
 	s.addRoute(http.MethodGet, path, handlers...)
 }
 
+
+// POST registers a POST route.
 func (s *Server) POST(path string, handlers ...Handler) {
 	s.addRoute(http.MethodPost, path, handlers...)
 }
 
+// PUT registers a PUT route.
 func (s *Server) PUT(path string, handlers ...Handler) {
 	s.addRoute(http.MethodPut, path, handlers...)
 }
 
+// DELETE registers a DELETE route.
 func (s *Server) DELETE(path string, handlers ...Handler) {
 	s.addRoute(http.MethodDelete, path, handlers...)
 }
+
+// OPTIONS registers an OPTIONS route.
+func (s *Server) OPTIONS(path string, handlers ...Handler) {
+	s.addRoute(http.MethodOptions, path, handlers...)
+}
+
 
 
 func getLocalIP() string {
@@ -375,7 +437,19 @@ func getLocalIP() string {
 	return ""
 }
 
-
+// Start starts the HTTP server.
+//
+// Start blocks until the server stops or returns an error.
+//
+// Example:
+//
+//	app := gorbit.New(8080)
+//
+//	app.GET("/", func(c *gorbit.Ctx) {
+//	    c.String(200, "Hello, World!")
+//	})
+//
+//	log.Fatal(app.Start())
 func (s *Server) Start() error {
 	
 	local := "http://localhost" + s.port

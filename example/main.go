@@ -1,22 +1,26 @@
 package main
 
 import (
+	"log"
+
 	gb "github.com/pav-studio/gorbit"
-	"github.com/pav-studio/gorbit/example/routes/api"
 	"github.com/pav-studio/gorbit/middleware"
+	"github.com/pav-studio/gorbit/example/routes"
 )
 
 func main() {
 
-	app := gb.New(3000)
+	app := gb.New(8080)
 
 	app.Use(middleware.AllowAllCORS())
 
-	app.GET("/status", func(c *gb.Ctx) {
-		c.String(200, "healthy")
+	app.GET("/api/status", func(c *gb.Ctx) {
+		c.String(200, "Server is running")
 	})
 
-	app.Mount("/cameras", api.Camera)
+	app.Mount("/api/auth", routes.Auth)
+	app.Mount("/api/dinosaurs", routes.Dinosaurs)
+	app.Mount("/api/trains", routes.Trains)
 
-	app.Start()
+	log.Fatal(app.Start())
 }

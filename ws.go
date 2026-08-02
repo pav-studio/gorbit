@@ -10,9 +10,18 @@ import (
 
 var wsManager *WSManager
 
-
+// EventHandler handles an incoming WebSocket event.
+//
+// The event payload is provided as raw JSON and can be unmarshaled
+// into the desired Go type.
 type EventHandler func(*WSClient, json.RawMessage)
 
+
+// WSClient represents a connected WebSocket client.
+//
+// It provides methods for sending and receiving events, joining
+// rooms, storing per-connection values, and managing the connection
+// lifecycle.
 type WSClient struct {
 	ID      string
 	Conn    *coderws.Conn
@@ -28,6 +37,8 @@ type WSClient struct {
 	onDisconnect func(*WSClient)
 }
 
+// WSManager manages WebSocket routes, connected clients,
+// rooms, and connection options.
 type WSManager struct {
 	server  *Server
 	clients map[string]*WSClient
@@ -35,6 +46,9 @@ type WSManager struct {
 	options coderws.AcceptOptions
 }
 
+
+// Packet represents a WebSocket event packet exchanged between
+// the client and server.
 type Packet struct {
 	Event string          `json:"event"`
 	Data  json.RawMessage `json:"data"`
@@ -44,6 +58,10 @@ func setWSManager(ws *WSManager) {
     wsManager = ws
 }
 
+
+// WS returns the application's global WebSocket manager.
+//
+// It panics if the WebSocket manager has not been initialized.
 func WS() *WSManager {
     if wsManager == nil {
         panic("gorbit: websocket manager not initialized")
@@ -52,6 +70,7 @@ func WS() *WSManager {
     return wsManager
 }
 
+// Handle registers a WebSocket endpoint for the specified path.
 func (m *WSManager) Handle(path string, handler WSHandler) {
 
 	segments := splitPath(path)
@@ -67,6 +86,11 @@ func (m *WSManager) Handle(path string, handler WSHandler) {
 }
 
 
+
+// Broadcast sends an event with the provided payload to every
+// client currently joined to the specified room.
+//
+// If the room does not exist, Broadcast does nothing.
 func (m *WSManager) Broadcast(room, event string, data any) {
 
     clients, ok := m.rooms[room]
@@ -80,6 +104,9 @@ func (m *WSManager) Broadcast(room, event string, data any) {
 
 }
 
+// Join adds the client to the specified room.
+//
+// If the room does not already exist, it is created.
 func (c *WSClient) Join(room string) {
 
 	if c.manager.rooms[room] == nil {
@@ -96,6 +123,10 @@ func (c *WSClient) Join(room string) {
 	)
 }
 
+
+// Leave removes the client from the specified room.
+//
+// Empty rooms are automatically removed.
 func (c *WSClient) Leave(room string) {
 
 	clients, ok := c.manager.rooms[room]
@@ -123,6 +154,8 @@ func (c *WSClient) Leave(room string) {
 	}
 }
 
+
+// LeaveAll removes the client from every room it has joined.
 func (c *WSClient) LeaveAll() {
 
 	log.Printf(
@@ -154,7 +187,9 @@ func (c *WSClient) LeaveAll() {
 }
 
 
-
+// Set stores a value associated with the current WebSocket client.
+//
+// Stored values exist only for the lifetime of the connection.
 func (c *WSClient) Set(key string, value any) {
     if c.Values == nil {
         c.Values = make(map[string]any)
@@ -162,15 +197,22 @@ func (c *WSClient) Set(key string, value any) {
     c.Values[key] = value
 }
 
+// Get retrieves a value previously stored using Set.
+//
+// The returned boolean reports whether the key exists.
 func (c *WSClient) Get(key string) (any, bool) {
     v, ok := c.Values[key]
     return v, ok
 }
 
+// Delete removes a stored value associated with the given key.
 func (c *WSClient) Delete(key string) {
     delete(c.Values, key)
 }
 
+// On registers a handler for the specified event.
+//
+// When a packet with the matching event name is received,
 func (c *WSClient) On(event string, handler EventHandler) {
 
 	if c.events == nil {
@@ -186,6 +228,9 @@ func (c *WSClient) On(event string, handler EventHandler) {
 	c.events[event] = handler
 }
 
+// Emit sends an event and payload to the connected client.
+//
+// The payload is automatically encoded as JSON.
 func (c *WSClient) Emit(event string, data any) error {
 
 	log.Printf(
@@ -256,6 +301,11 @@ func (c *WSClient) Emit(event string, data any) error {
 
 
 
+// Listen begins reading incoming WebSocket messages.
+//
+// Incoming packets are decoded and dispatched to their
+// registered event handlers. Listen blocks until the
+// connection is closed or an error occurs.
 func (c *WSClient) Listen() {
 
 	log.Printf("[WS %s] Listen() started", c.ID)
@@ -344,6 +394,7 @@ func (c *WSClient) Listen() {
 	}
 }
 
+// Close gracefully closes the WebSocket connection.
 func (c *WSClient) Close() error {
 
 	log.Printf(
@@ -357,10 +408,12 @@ func (c *WSClient) Close() error {
 	)
 }
 
+// EmitJSON is an alias for Emit.
 func (c *WSClient) EmitJSON(event string, v any) error {
 	return c.Emit(event, v)
 }
 
+// Raw sends a raw WebSocket frame without JSON encoding.
 func (c *WSClient) Raw(messageType coderws.MessageType, data []byte) error {
 
 	return c.Conn.Write(
@@ -370,19 +423,29 @@ func (c *WSClient) Raw(messageType coderws.MessageType, data []byte) error {
 	)
 }
 
+// OnConnect registers a callback executed after the client
+// successfully connects.
 func (c *WSClient) OnConnect(fn func(*WSClient)) {
 	c.onConnect = fn
 }
 
+// OnDisconnect registers a callback executed when the client
+// disconnects.
 func (c *WSClient) OnDisconnect(fn func(*WSClient)) {
 	c.onDisconnect = fn
 }
 
 
+// SetOptions replaces the WebSocket accept options used when
+// accepting new connections.
 func (m *WSManager) SetOptions(options coderws.AcceptOptions) {
 	m.options = options
 }
 
+// AddOrigins appends one or more allowed origin patterns.
+//
+// Connections originating from these origins are permitted
+// during the WebSocket handshake.
 func (m *WSManager) AddOrigins(origins ...string) {
 
 	m.options.OriginPatterns = append(
@@ -391,11 +454,17 @@ func (m *WSManager) AddOrigins(origins ...string) {
 	)
 }
 
+// AllowAllOrigins disables origin verification for incoming
+// WebSocket connections.
+//
+// This should generally only be used during development or
+// in trusted environments.
 func (m *WSManager) AllowAllOrigins() {
 
 	m.options.InsecureSkipVerify = true
 }
 
+// Options returns the current WebSocket accept options.
 func (m *WSManager) Options() *coderws.AcceptOptions {
 	return &m.options
 }

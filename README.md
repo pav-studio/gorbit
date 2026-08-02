@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-A lightweight, fast, and expressive web framework for Go inspired by the simplicity of Express.js.
+Gorbit is an Express-inspired web framework for Go focused on simplicity, performance, and an intuitive developer experience. It provides routing, middleware, WebSockets, static file serving, and modular APIs without unnecessary abstractions.
 </p>
 
 <p align="center">
@@ -17,8 +17,6 @@ A lightweight, fast, and expressive web framework for Go inspired by the simplic
 </p>
 
 ---
-
-## Why Gorbit?
 
 Gorbit is designed to provide an Express-like developer experience while embracing Go's performance and concurrency.
 
@@ -307,17 +305,17 @@ examples/
 * [x] Router Mounting
 * [x] WebSockets
 * [x] Route Parameters
-* [ ] Static File Serving
-* [ ] Template Rendering
-* [ ] Logger Middleware
-* [ ] Recovery Middleware
-* [ ] Cookie Helpers
-* [ ] Multipart Uploads
-* [ ] Request Validation
-* [ ] JWT Middleware
-* [ ] Rate Limiter
-* [ ] Session Support
-* [ ] OpenAPI Generator
+* [x] Static File Serving
+* [x] Template Rendering
+* [x] Logger Middleware
+* [x] Recovery Middleware
+* [x] Cookie Helpers
+* [x] Multipart Uploads
+* [x] Request Validation
+* [x] JWT Middleware
+* [x] Rate Limiter
+* [x] Session Support
+* [x] OpenAPI Generator
 
 ---
 
