@@ -28,33 +28,72 @@
 
     let headers = [
         "Home",
-        "Why Gorbit?",
+        "Highlights",
         "QuickStart",
         "Github",
         "Docs",
     ]
 
-
     const features = [
         {
-            icon: Workflow,
-            title: "Middleware",
-            description: "Chain reusable middleware exactly the way you want."
+            icon: Route,
+            title: "RESTful Routing",
+            description: "Build clean APIs with modular routers, middleware, route parameters and mounting."
         },
         {
             icon: Wifi,
-            title: "WebSockets",
-            description: "Built directly into the framework."
+            title: "Built-in WebSockets",
+            description: "Create event-driven WebSocket applications with rooms, events and broadcasting."
         },
         {
-            icon: Route,
-            title: "Routing",
-            description: "Route parameters, groups and mounting made simple."
+            icon: Workflow,
+            title: "Express-like API",
+            description: "A familiar developer experience with idiomatic Go performance and simplicity."
         },
         {
-            icon: Rocket,
+            icon: ShieldCheck,
             title: "Production Ready",
-            description: "Built for scalable APIs powered by Go's concurrency."
+            description: "Designed for scalable services with middleware, static files, cookies and JSON helpers."
+        }
+    ];
+
+
+    const docsNavigation = [
+        {
+            title: "Quick Start",
+            description: "Build your first Gorbit server.",
+            href: "/docs/quick-start",
+            icon: Rocket
+        },
+        {
+            title: "Routing",
+            description: "REST APIs, parameters and routers.",
+            href: "/docs/routing",
+            icon: Route
+        },
+        {
+            title: "Middleware",
+            description: "Reusable request handlers.",
+            href: "/docs/middleware",
+            icon: Workflow
+        },
+        {
+            title: "WebSockets",
+            description: "Events, rooms and broadcasting.",
+            href: "/docs/websockets",
+            icon: Wifi
+        },
+        {
+            title: "Context",
+            description: "Request helpers and shared values.",
+            href: "/docs/context",
+            icon: Package
+        },
+        {
+            title: "Examples",
+            description: "Complete production examples.",
+            href: "/docs/examples",
+            icon: HeartHandshake
         }
     ];
 
@@ -84,29 +123,41 @@
         quickstart : {
             i:0,
             data:`
-    package main 
+    package main
 
-    //import dependencies
-    import ( 
-        gb"github.com/pav-studio/gorbit"
+    import (
+        "log"
+        gb "github.com/pav-studio/gorbit"
         "github.com/pav-studio/gorbit/middleware"
     )
 
-    // entry point method
     func main() {
-        // initialize the multiplexer and websocket
+
         app := gb.New(3000)
 
-        // use allow all cors for headers
         app.Use(middleware.AllowAllCORS())
 
-        // add a GET route for /status 
-        app.GET("/status", func(c *gb.Ctx) {
-            c.String(200, "healthy")
+        app.GET("/", func(c *gb.Ctx) {
+
+            c.OK(gb.JSON{
+                "framework": "Gorbit",
+                "message":   "Hello, World!",
+                "status":    "running",
+            })
+
         })
 
-        // start the server
-        app.Start()
+        app.GET("/hello/:name", func(c *gb.Ctx) {
+
+            c.OK(gb.JSON{
+                "message": "Hello, " + c.Param("name") + "!",
+            })
+
+        })
+
+        if err := app.Start(); err != nil {
+            log.Fatal(err)
+        }
     }
             `
         }
@@ -184,21 +235,20 @@
 
         <div class="flex title mt-3 mx-auto flex-col md:flex-row items-center gap-4">
 
+            <button onclick={()=> scrollToSection("QuickStart")} class="{theme.btn}">
+                Get Started
+            </button>
+
             <button class="{theme.btnAlt}">
                 Documentation
             </button>
-
-            <button onclick={()=> scrollToSection("QuickStart")} class="{theme.btn}">
-                QuickStart
-            </button>
-
             
         </div>
     
     </div>
 
     <div
-        id="Why Gorbit?"
+        id="Highlights"
         class="relative w-screen flex items-center justify-center pt-15 mt-10"
         >
 
@@ -215,17 +265,12 @@
                 <h2
                     class="mt-5 text-xl md:text-4xl font-bold leading-tight {theme.text}"
                 >
-                    Everything you love about
-                    <span class="text-sky-500">
-                        Express.js
-                    </span>
-
-                    <br>
-
-                    rebuilt for
+                    Build modern APIs,
+                    real-time apps and
+                    production services.
 
                     <span class="text-sky-500">
-                        Go.
+                        with Go.
                     </span>
                 </h2>
 
@@ -235,8 +280,7 @@
                     Gorbit gives you a familiar developer experience while
                     taking advantage of Go's speed, concurrency and simplicity.
 
-                    Build REST APIs, WebSocket servers and production backends
-                    without unnecessary abstractions.
+                    Gorbit combines an Express-inspired API with Go's performance to help you build REST APIs, real-time WebSocket applications, and production services using a clean, modular architecture.
                 </p>
 
                 <div class="mt-4 flex gap-10">
@@ -244,11 +288,12 @@
                     <div>
 
                         <div class="text-2xl md:text-4xl font-bold text-sky-500">
-                            Minimal
+                            HTTP + WebSockets
                         </div>
 
                         <div class="mt-2 text-slate-400 text-sm md:text-lg">
-                            Zero unnecessary abstractions
+                            One framework
+
                         </div>
 
                     </div>
@@ -256,11 +301,11 @@
                     <div>
 
                         <div class=" text-2xl md:text-4xl font-bold text-sky-500">
-                            Fast
+                            Realtime
                         </div>
 
                         <div class="mt-2 text-sm md:text-lg text-slate-400">
-                            Built on Go's performance
+                            Built-in WebSockets
                         </div>
 
                     </div>
@@ -302,6 +347,90 @@
             code={docs['quickstart'].data}
             bind:dark={theme.value}
          />
+    </div>
+
+
+
+    <div
+        id="Docs"
+        class="min-h-screen w-screen flex items-center justify-center py-20"
+    >
+        <div class="w-11/12 max-w-7xl">
+
+            <div class="text-center">
+
+                <div class="text-sky-500 uppercase tracking-[0.3em] font-semibold">
+                    Documentation
+                </div>
+
+                <h2 class="mt-5 text-4xl md:text-5xl font-bold {theme.text}">
+                    Learn Gorbit
+                </h2>
+
+                <p class="mt-5 max-w-3xl mx-auto text-lg text-slate-400">
+                    Everything you need to build REST APIs, WebSocket servers and
+                    production Go services.
+                </p>
+
+            </div>
+
+            <!-- Featured card -->
+
+            <a
+                href="/docs"
+                class="mt-12 flex flex-col md:flex-row justify-between items-center rounded-3xl border {theme.code} p-8 hover:-translate-y-2 transition-all"
+            >
+
+                <div>
+
+                    <div class="text-sky-500 font-semibold tracking-wider uppercase">
+                        Start Here
+                    </div>
+
+                    <div class="mt-3 text-3xl font-bold {theme.text}">
+                        Getting Started
+                    </div>
+
+                    <div class="mt-3 text-slate-400 max-w-xl">
+                        Installation, project structure, your first API and everything
+                        required to build your first Gorbit application.
+                    </div>
+
+                </div>
+
+                <button class="{theme.btn}">
+                    Read Guide →
+                </button>
+
+            </a>
+
+            <!-- Grid -->
+
+            <div class="grid md:grid-cols-3 gap-6 mt-10">
+
+                {#each docsNavigation as page}
+
+                    <a
+                        href={page.href}
+                        class="rounded-3xl border {theme.code} p-6 hover:-translate-y-2 transition-all"
+                    >
+
+                        <page.icon class="w-10 h-10 text-sky-500"/>
+
+                        <h3 class="mt-6 text-xl font-semibold {theme.text}">
+                            {page.title}
+                        </h3>
+
+                        <p class="mt-3 text-slate-400">
+                            {page.description}
+                        </p>
+
+                    </a>
+
+                    {/each}
+            </div>
+
+        </div>
     </div>
 
 

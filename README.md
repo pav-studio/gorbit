@@ -18,7 +18,30 @@ Gorbit is an Express-inspired web framework for Go focused on simplicity, perfor
 
 ---
 
-Gorbit is designed to provide an Express-like developer experience while embracing Go's performance and concurrency.
+
+
+## Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Routing](#routing)
+- [Route Parameters](#route-parameters)
+- [Middleware](#middleware)
+- [Router Groups](#router-groups)
+- [CORS](#cors)
+- [BindJSON](#bindjson)
+- [Cookies](#cookie-example)
+- [File Uploads](#file-upload)
+- [Responses](#responses)
+- [WebSockets](#websockets)
+- [Project Structure](#project-structure)
+- [Examples](#examples)
+- [Documentation](#documentation)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ### Features
 
@@ -36,6 +59,8 @@ Gorbit is designed to provide an Express-like developer experience while embraci
 
 # Installation
 
+Requires Go **1.26** or newer.
+
 ```bash
 go get github.com/pav-studio/gorbit
 ```
@@ -48,21 +73,38 @@ go get github.com/pav-studio/gorbit
 package main
 
 import (
-	gb"github.com/pav-studio/gorbit"
-	"github.com/pav-studio/gorbit/middleware"
+    "log"
+    gb "github.com/pav-studio/gorbit"
+    "github.com/pav-studio/gorbit/middleware"
 )
 
 func main() {
 
-	app := gb.New(3000)
+    app := gb.New(3000)
 
-	app.Use(middleware.AllowAllCORS())
+    app.Use(middleware.AllowAllCORS())
 
-	app.GET("/status", func(c *gb.Ctx) {
-		c.String(200, "healthy")
-	})
+    app.GET("/", func(c *gb.Ctx) {
 
-	app.Start()
+        c.OK(gb.JSON{
+            "framework": "Gorbit",
+            "message":   "Hello, World!",
+            "status":    "running",
+        })
+
+    })
+
+    app.GET("/hello/:name", func(c *gb.Ctx) {
+
+        c.OK(gb.JSON{
+            "message": "Hello, " + c.Param("name") + "!",
+        })
+
+    })
+
+    if err := app.Start(); err != nil {
+        log.Fatal(err)
+    }
 }
 ```
 
@@ -80,13 +122,48 @@ http://localhost:3000
 
 ---
 
+# Context Values
+
+Share data between middleware and handlers during a request.
+
+```go
+app.Use(func(c *gb.Ctx) {
+
+	c.Set("userID", 42)
+
+	c.Next()
+
+})
+
+app.GET("/profile", func(c *gb.Ctx) {
+
+	id, _ := c.Get("userID")
+
+	c.OK(gb.JSON{
+		"id": id,
+	})
+
+})
+```
+
+---
+
 # Routing
+
+Gorbit supports the standard HTTP methods and expressive route definitions with URL parameters.
 
 ### GET
 
 ```go
 app.GET("/users", func(c *gb.Ctx) {
-	c.JSON(200, []string{"Alice", "Bob"})
+
+	c.OK(gb.JSON{
+		"users": []string{
+			"Alice",
+			"Bob",
+		},
+	})
+
 })
 ```
 
@@ -94,6 +171,23 @@ app.GET("/users", func(c *gb.Ctx) {
 
 ```go
 app.POST("/users", func(c *gb.Ctx) {
+
+	type CreateUserRequest struct {
+		Name string `json:"name"`
+	}
+
+	var body CreateUserRequest
+
+	if err := c.BindJSON(&body); err != nil {
+		c.BadRequest(gb.JSON{
+			"error": "Invalid request body",
+		})
+		return
+	}
+
+	c.Created(gb.JSON{
+		"name": body.Name,
+	})
 
 })
 ```
@@ -103,6 +197,11 @@ app.POST("/users", func(c *gb.Ctx) {
 ```go
 app.PUT("/users/:id", func(c *gb.Ctx) {
 
+	c.OK(gb.JSON{
+		"id":      c.Param("id"),
+		"message": "User updated",
+	})
+
 })
 ```
 
@@ -111,19 +210,24 @@ app.PUT("/users/:id", func(c *gb.Ctx) {
 ```go
 app.DELETE("/users/:id", func(c *gb.Ctx) {
 
+	c.OK(gb.JSON{
+		"message": "User deleted",
+	})
+
 })
 ```
 
 ---
 
 # Route Parameters
+Route parameters make it easy to capture values directly from the URL.
 
 ```go
 app.GET("/users/:id", func(c *gb.Ctx) {
 
-	id := c.Param("id")
-
-	c.String(200, id)
+	c.OK(gb.JSON{
+		"id": c.Param("id"),
+	})
 
 })
 ```
@@ -137,12 +241,16 @@ GET /users/42
 Response:
 
 ```
-42
+{
+  "id": "42"
+}
 ```
 
 ---
 
 # Middleware
+
+Middleware allows you to intercept requests before they reach your route handlers. Call `c.Next()` to continue the chain.
 
 Global middleware:
 
@@ -155,7 +263,7 @@ Custom middleware:
 ```go
 app.Use(func(c *gb.Ctx) {
 
-	println(c.Request.Method)
+	log.Println(c.Method(), c.Path())
 
 	c.Next()
 
@@ -165,11 +273,21 @@ app.Use(func(c *gb.Ctx) {
 ---
 
 # Router Groups
+Organize related endpoints into reusable routers and mount them under a common prefix.
 
 ```go
 api := gb.NewRouter()
 
-api.GET("/users", handler)
+api.GET("/users", func(c *gb.Ctx) {
+
+	c.OK(gb.JSON{
+		"users": []string{
+			"Alice",
+			"Bob",
+		},
+	})
+
+})
 
 app.Mount("/api", api)
 ```
@@ -183,12 +301,27 @@ GET /api/users
 Router middleware:
 
 ```go
-api.Use(AuthMiddleware)
+api.Use(func(c *gb.Ctx) {
+
+	token := c.Header("Authorization")
+
+	if token == "" {
+		c.Unauthorized(gb.JSON{
+			"error": "Missing authorization header",
+		})
+		return
+	}
+
+	c.Next()
+
+})
 ```
 
 ---
 
 # CORS
+Gorbit includes configurable CORS middleware for local development and production deployments.
+
 
 Allow everything:
 
@@ -220,42 +353,139 @@ app.Use(middleware.CORS(
 
 ---
 
-# Responses
-
-String
-
-```go
-c.String(200, "Hello World")
-```
-
-JSON
+# BindJSON
+Automatically decode JSON request bodies into Go structs.
 
 ```go
-c.JSON(200, map[string]any{
-	"success": true,
+type LoginRequest struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+
+app.POST("/login", func(c *gb.Ctx) {
+
+    var body LoginRequest
+
+    if err := c.BindJSON(&body); err != nil {
+        c.BadRequest(gb.JSON{
+            "error": "Invalid JSON",
+        })
+        return
+    }
+
+    c.OK(body)
+
 })
-```
-
-Status
-
-```go
-c.Status(204)
 ```
 
 ---
 
-# WebSockets
+# Cookies 
+Read and write HTTP cookies using built-in helper methods.
 
 ```go
-app.WS("/chat", func(client *gb.WSClient) {
+c.SetCookieValue("token", token, gb.CookieOptions{
+    HttpOnly: true,
+    MaxAge:   3600,
+})
 
-	client.OnConnect(func(c *gb.WSClient) {
-		println("Connected")
-	})
+token, err := c.Cookie("token")
+if err != nil {
+    c.Unauthorized(gb.JSON{
+        "error": "Token missing",
+    })
+    return
+}
+```
 
-	client.On("message", func(data any) {
-		println(data)
-	})
+---
+# File Upload
+Handle multipart form uploads with a simple API.
+
+```go
+file, err := c.FormFile("image")
+if err != nil {
+    c.BadRequest(gb.JSON{
+        "error": "No file uploaded",
+    })
+    return
+}
+
+if err := file.SaveTo("./uploads/" + file.Filename); err != nil {
+    c.InternalServerError(gb.JSON{
+        "error": "Failed to save file",
+    })
+    return
+}
+
+c.OK(gb.JSON{
+    "filename": file.Filename,
+})
+```
+
+
+---
+
+# Responses
+Use built-in response helpers to return common HTTP responses.
+
+```go
+c.OK(gb.JSON{
+    "message": "Success",
+})
+
+c.Created(gb.JSON{
+    "id": 42,
+})
+
+c.BadRequest(gb.JSON{
+    "error": "Invalid request",
+})
+
+c.NotFound(gb.JSON{
+    "error": "Resource not found",
+})
+
+c.InternalServerError(gb.JSON{
+    "error": "Something went wrong",
+})
+```
+
+---
+
+# Static Files
+
+Serve files from a local directory with a single line.
+
+```go
+app.Static("/public", "./public")
+```
+
+A request to `/public/logo.png` will serve `./public/logo.png`.
+
+---
+
+# WebSockets
+Create event-driven WebSocket servers using Gorbit's built-in WebSocket manager.
+
+```go
+app.WS.Handle("/chat", func(client *gb.WSClient) {
+
+    client.OnConnect(func(c *gb.WSClient) {
+        println("Connected")
+    })
+
+    client.On("message", func(c *gb.WSClient, data json.RawMessage) {
+
+        c.Emit("message", gb.JSON{
+            "text": "Hello from Gorbit!",
+        })
+
+    })
+
+    client.OnConnect(func(c *gb.WSClient) {
+        c.Join("general")
+    })
 
 })
 ```
@@ -266,58 +496,42 @@ app.WS("/chat", func(client *gb.WSClient) {
 
 ```
 my-api/
-│
 ├── main.go
 ├── go.mod
-│
-├── routes/
-│   ├── api.go
-│   └── auth.go
-│
-├── middleware/
-│
 ├── controllers/
-│
+├── middleware/
+├── routes/
+│   ├── auth.go
+│   ├── users.go
+│   └── posts.go
 ├── services/
-│
-└── models/
+├── models/
+└── utils/
 ```
 
+---
+
+# Documentation
+
+Looking for more?
+
+| Resource | Description |
+|----------|-------------|
+| 📚 Documentation | https://gorbit.orbit-technologies.org/docs |
+| 📖 Go Reference | https://pkg.go.dev/github.com/pav-studio/gorbit |
+| 💻 GitHub | https://github.com/pav-studio/gorbit |
 ---
 
 # Examples
 
-Example projects are available inside the `examples/` directory.
+The `examples/` directory contains complete applications demonstrating common Gorbit use cases.
 
-```
-examples/
-├── hello-world
-├── websocket
-└── rest-api
-```
-
----
-
-# Roadmap
-
-* [x] HTTP Router
-* [x] Middleware
-* [x] Router Mounting
-* [x] WebSockets
-* [x] Route Parameters
-* [x] Static File Serving
-* [x] Template Rendering
-* [x] Logger Middleware
-* [x] Recovery Middleware
-* [x] Cookie Helpers
-* [x] Multipart Uploads
-* [x] Request Validation
-* [x] JWT Middleware
-* [x] Rate Limiter
-* [x] Session Support
-* [x] OpenAPI Generator
-
----
+| Example | Description |
+|---------|-------------|
+| hello-world | Basic HTTP server |
+| rest-api | RESTful API with routers and middleware |
+| websocket-chat | Event-driven WebSocket server |
+| file-upload | Multipart file uploads |
 
 # Contributing
 
@@ -330,13 +544,10 @@ Contributions are welcome.
 
 ---
 
+
+
 # License
 
 This project is licensed under the MIT License.
 
 ---
-
-# Links
-
-* GitHub: https://github.com/pav-studio/gorbit
-* Documentation: https://gorbit.orbit-technologies.org/docs
