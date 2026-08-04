@@ -18,19 +18,26 @@
         ShieldCheck} from "lucide-svelte";
 
     const dispatch = createEventDispatcher();
+    let {
+        docsNavigation,
+        openModal = $bindable(),
+        activeNav = $bindable(),
+        activeTopic = $bindable()
+    } = $props();
 
     let query = $state("");
 
-    const allTopics = docsNavigation.flatMap(nav =>
-        nav.topics.map(topic => ({
-            ...topic,
-            navId: nav.id,
-            navTitle: nav.title
-        }))
+    let allTopics = $derived(
+        docsNavigation.flatMap(nav =>
+            nav.topics.map(topic => ({
+                ...topic,
+                navId: nav.id,
+                navTitle: nav.title
+            }))
+        )
     );
 
     let filteredTopics = $derived.by(() => {
-
         const q = query.trim().toLowerCase();
 
         if (!q) return [];
@@ -38,13 +45,10 @@
         return allTopics.filter(topic =>
             topic.title.toLowerCase().includes(q)
         );
-
     });
 
-    let {docsNavigation} = $props()
     let expanded = $state(new Set(["quick_start"]));
-    let activeNav = $state("quick_start")
-    let activeTopic = $state("install-go")
+  
     function toggle(id, topic) {
         activeNav = id;
         activeTopic = topic
@@ -68,12 +72,20 @@
     }
 </script>
 
-<div class=" max-h-screen border-r-2 border-gray-600 text-white flex flex-col relative">
+<div class="h-full max-h-screen border-r-2 border-gray-600 text-white flex flex-col relative ">
     <div class="sticky top-0 left-0">
-        <a href="/" class="w-full mt-2 flex flex-row items-center justify-start py-2 px-5 gap-2 text-md title text-white hover:bg-white hover:text-black transition-all duration-300">
+        <a href="/" class="w-full mt-2 md:flex hidden flex-row items-center justify-start py-2 px-5 gap-2 text-md title text-white hover:bg-white hover:text-black transition-all duration-300">
             <ArrowLeft size={16}/>
             Home
         </a>
+        <button onclick={()=>{
+            openModal=!openModal
+            console.log(openModal)
+
+        }} class="w-full mt-2 md:hidden flex flex-row items-center justify-start py-2 px-5 gap-2 text-md title text-white hover:bg-white hover:text-black transition-all duration-300">
+            <ArrowLeft size={16}/>
+            Close
+        </button>
         <div class="w-full flex flex-row items-center  text-white outline-none px-5 py-2 text-md title my-1 transition-all duration-300 focus-within:text-black focus-within:bg-white hover:bg-white/20 hover:text-white">
             <Search size={18}/>
             <input

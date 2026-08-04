@@ -54,7 +54,7 @@
 </script>
 
 <div class="px-4 overflow-hidden">
-<div class="backdrop-blur-sm overflow-y-auto rounded-md md:w-auto md:max-w-3/5 w-full  mx-auto flex flex-col">
+<div class="backdrop-blur-sm overflow-y-auto rounded-md md:w-auto md:max-w-4/5 w-full  mx-auto flex flex-col">
     <div class="sticky top-0 flex flex-row items-center border-2  {theme.code} justify-between px-2 py-1  rounded-tr-md  rounded-tl-md gap-6">
         <div class="text-xs md:text-lg">{title} </div>
         <button
@@ -69,7 +69,7 @@
             {/if}
         </button>
     </div>
-<div class="rounded-bl-lg rounded-br-lg overflow-x-auto">
+<div class="rounded-bl-lg rounded-br-lg overflow-x-auto bg-gray-800">
     {@html html}
 </div>
 </div>

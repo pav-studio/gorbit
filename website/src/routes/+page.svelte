@@ -225,12 +225,14 @@
             A lightweight, fast, and expressive web framework for Go inspired by the simplicity of Express.js.
         </div>
     
-        <Snippet 
-            bind:theme 
-            title="Import gorbit right now" 
-            code="  go get github.com/pav-studio/gorbit     "  
-            bind:dark={theme.value}
-        />
+        <div class="w-full md:w-1/2 mx-auto">
+            <Snippet 
+                bind:theme 
+                title="Import gorbit right now" 
+                code="  go get github.com/pav-studio/gorbit     "  
+                bind:dark={theme.value}
+            />
+        </div>
 
 
         <div class="flex title mt-3 mx-auto flex-col md:flex-row items-center gap-4">
@@ -343,10 +345,12 @@
 
 
     <div id="QuickStart"  class="my-5 relative pt-15 pb-5 overflow-y-hidden w-screen max-w-screen flex flex-col justify-center gap-5 z-4">
-        <Snippet bind:theme title="Quickstart, paste this in your entry point file" 
-            code={docs['quickstart'].data}
-            bind:dark={theme.value}
-         />
+        <div class="w-full md:w-3/4 mx-auto">
+            <Snippet bind:theme title="Quickstart, paste this in your entry point file" 
+                code={docs['quickstart'].data}
+                bind:dark={theme.value}
+            />
+        </div>        
     </div>
 
 

@@ -24,5 +24,6 @@ export async function highlight(
     return highlighter.codeToHtml(code, {
         lang,
         theme: dark==="light" ? "github-light" : "github-dark",
+        defaultColor: false
     });
 }

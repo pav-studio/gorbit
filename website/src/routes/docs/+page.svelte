@@ -1,7 +1,7 @@
 <script>
 
     import { onMount } from "svelte";
-
+    import { tick } from "svelte";
 	import DocsNav from "$lib/components/DocsNav.svelte";
     import Glow from "$lib/components/Glow.svelte";
 	import Snippet from "$lib/components/Snippet.svelte";
@@ -19,7 +19,10 @@
         Package,
         Wifi,
         HeartHandshake,
-        ShieldCheck
+        ShieldCheck,
+
+		Home
+
     
     } from 'lucide-svelte';
 
@@ -27,7 +30,7 @@
 	import DocsData from "$lib/components/DocsData.svelte";
 
     let theme = $state(Theme.dark)
-
+    let openModal = $state(false)
     let activeNav = $state("quick_start");
     let activeTopic = $state("install-go");
 
@@ -35,11 +38,14 @@
 
 
     function navigate(e) {
-        const id = e.detail.topic ?? e.detail.nav;
+        activeNav = e.detail.nav;
+        activeTopic = e.detail.topic;
 
-        document.getElementById(id)?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
+        tick().then(() => {
+            document.getElementById(e.detail.topic)?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
         });
     }
 
@@ -90,26 +96,39 @@
 
     });
 
+
 </script>
 
 <Glow bind:dark={theme.value}/>
 
 
 <div class="w-full relative max-h-screen {theme.bg} overflow-x-hidden flex flex-row">
-    <DocsNav
-        {docsNavigation}
-        bind:activeNav
-        bind:activeTopic
-        on:navigate={navigate}
-    />
-
-    <div bind:this={content} class="flex-1 overflow-y-auto">
-
-        <DocsData docsNavigation={docsNavigation} bind:theme={theme} />
-
+    <button onclick={()=>{openModal=true}} class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md border-white text-white p-2 top-5 right-5 order-2 z-30 bg-slate/20 backdrop-blur-xl">
+        <Menu />
+    </button>
+    <a href="/" class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md border-white text-white p-2 top-5 left-5 order-2 z-30  bg-slate/20 backdrop-blur-xl">
+        <Home />
+    </a>
+    <div class="h-screen absolute md:static  top-0 {openModal?"left-0":"-left-full"} md:order-0 order-1 z-100 backdrop-blur-xl bg-black/20 transition-all duration-600">
+        <DocsNav
+            {docsNavigation}
+            bind:activeNav
+            bind:openModal
+            bind:activeTopic
+            
+            on:navigate={navigate}
+        />
     </div>
 
-
+    <div bind:this={content} class="flex-1 overflow-y-auto order-0 md:order-1">
+        <DocsData 
+            section={docsNavigation.find(s => s.id === activeNav)}
+            docsNavigation={docsNavigation} 
+            
+            bind:theme={theme}
+            bind:activeNav
+        />
+    </div>
 </div>
 
 

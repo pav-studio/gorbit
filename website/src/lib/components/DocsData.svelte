@@ -2,113 +2,114 @@
 	import Snippet from "$lib/components/Snippet.svelte";
 
     import { docs } from "$lib/docs/content";   
-    let {docsNavigation ,theme} = $props()
+    let {section ,theme, activeNav} = $props()
 </script>
 
+<div class="md:hidden h-16"></div>
 
-{#each docsNavigation as section}
 
-    <section
-        id={section.id}
-        class="px-16 py-20"
+
+<section
+    id={section.id}
+    class="px-5 md:px-16 md:py-20 py-14"
     >
 
-        <h1 class="text-5xl font-bold {theme.text}">
-            {section.title}
-        </h1>
+    <h1 class="text-5xl font-bold {theme.text}">
+        {section.title}
+    </h1>
 
-        <p class="mt-5 text-slate-400">
-            {section.description}
-        </p>
+    <p class="mt-5 text-slate-400">
+        {section.description}
+    </p>
 
-        <div class="space-y-24 mt-20">
+    <div class="space-y-24 mt-20">
 
-            {#each section.topics as topic}
+        {#each section.topics as topic}
 
-                <article
-                    id={topic.id}
-                    class="scroll-mt-24"
-                >
+            <article
+                id={topic.id}
+                class="scroll-mt-24"
+            >
 
-                    <h2 class="text-3xl font-bold text-sky-400">
-                        {topic.title}
-                    </h2>
+                <h2 class="text-3xl font-bold text-sky-400">
+                    {topic.title}
+                </h2>
 
-                    {#if docs[topic.id]}
+                {#if docs[topic.id]}
 
-                                                        
-                        {#each docs[topic.id].blocks as block}
+                                                    
+                    {#each docs[topic.id].blocks as block}
 
-                            {#if block.type === "text"}
+                        {#if block.type === "text"}
 
-                                <p class="mt-6 text-slate-400">
-                                    {block.content}
-                                </p>
+                            <p class="mt-6 text-slate-400">
+                                {block.content}
+                            </p>
 
-                            {:else if block.type === "code"}
+                        {:else if block.type === "code"}
 
-                                <div class="w-full my-4">
-                                    <Snippet
-                                        bind:theme
-                                        bind:dark={theme.value}
-                                        title={block.title}
-                                        code={block.code}
-                                    />
-                                </div>
+                            <div class="w-full my-4">
+                                <Snippet
+                                    bind:theme
+                                    bind:dark={theme.value}
+                                    title={block.title}
+                                    code={block.code}
+                                />
+                            </div>
 
-                            {:else if block.type === "image"}
+                        {:else if block.type === "image"}
 
-                                <figure class="mt-8 mx-auto">
+                            <figure class="mt-8 mx-auto">
 
-                                    <img
-                                        src={block.src}
-                                        alt={block.caption}
-                                        class="rounded-xl border mx-auto border-slate-700"
-                                    >
-
-                                    <figcaption class="mt-2 text-center text-slate-500">
-                                        {block.caption}
-                                    </figcaption>
-
-                                </figure>
-
-
-                            {:else if block.type === "link"}
-
-                                <a
-                                    href={block.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="m-4 inline-flex items-center gap-2 rounded-lg
-                                        border border-sky-500/40 bg-sky-500/10
-                                        px-4 py-2 text-sky-400
-                                        hover:bg-sky-500/20 hover:text-sky-300
-                                        transition-colors"
+                                <img
+                                    src={block.src}
+                                    alt={block.caption}
+                                    class="rounded-xl border mx-auto border-slate-700"
                                 >
-                                    {block.text}
-                                    ↗
-                                </a>
 
-                            {:else if block.type === "note"}
+                                <figcaption class="mt-2 text-center text-slate-500">
+                                    {block.caption}
+                                </figcaption>
 
-                                <div class="mt-8 rounded-xl border border-sky-700 bg-sky-950/30 p-5 text-white">
+                            </figure>
 
-                                    {block.content}
 
-                                </div>
+                        {:else if block.type === "link"}
 
-                            {/if}
+                            <a
+                                href={block.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="m-4 inline-flex items-center gap-2 rounded-lg
+                                    border border-sky-500/40 bg-sky-500/10
+                                    px-4 py-2 text-sky-400
+                                    hover:bg-sky-500/20 hover:text-sky-300
+                                    transition-colors whitespace-nowrap"
+                            >
+                                {block.text}
+                                ↗
+                            </a>
 
-                        {/each}
+                        {:else if block.type === "note"}
 
-                    {/if}
+                            <div class="mt-8 rounded-xl border border-sky-700 bg-sky-950/30 p-5 text-white">
 
-                </article>
+                                {block.content}
 
-            {/each}
+                            </div>
 
-        </div>
+                        {/if}
 
-    </section>
+                    {/each}
 
-{/each}
+                {/if}
+
+            </article>
+
+        {/each}
+
+    </div>
+
+</section>
+
+
