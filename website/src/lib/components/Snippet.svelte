@@ -69,8 +69,8 @@
             {/if}
         </button>
     </div>
-<div class=" rounded-bl-lg rounded-br-lg text-xs md:text-lg overflow-auto">
-<pre><code>{@html html}</code></pre>
+<div class="rounded-bl-lg rounded-br-lg overflow-x-auto">
+    {@html html}
 </div>
 </div>
 </div>

@@ -528,7 +528,7 @@ The `examples/` directory contains complete applications demonstrating common Go
 
 | Example | Description |
 |---------|-------------|
-| hello-world | Basic HTTP server |
+| quickstart | Basic HTTP server |
 | rest-api | RESTful API with routers and middleware |
 | websocket-chat | Event-driven WebSocket server |
 | file-upload | Multipart file uploads |

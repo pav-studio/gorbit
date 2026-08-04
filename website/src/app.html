@@ -15,6 +15,56 @@
             button {
                 cursor: pointer;
             }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            .scroll-mt-24 {
+                scroll-margin-top: 6rem;
+            }
+
+            :global(pre.shiki) {
+                display: inline-block;
+                min-width: 100%;
+            }
+
+            :global(pre.shiki code) {
+                white-space: pre;
+            }
+
+            :global(.shiki) {
+                width: max-content;
+                min-width: 100%;
+                overflow: visible;
+            }
+
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: rgba(15, 23, 42, 0);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(
+                    180deg,
+                    rgb(249, 251, 252),
+                    rgb(128, 129, 129)
+                );
+                border-radius: 999px;
+                border: 0.5px solid rgb(15 23 42);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(
+                    180deg,
+                    rgb(56 189 248),
+                    rgb(14 165 233)
+                );
+            }
         </style>
 
 

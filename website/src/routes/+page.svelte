@@ -62,37 +62,37 @@
         {
             title: "Quick Start",
             description: "Build your first Gorbit server.",
-            href: "/docs/quick-start",
+            href: "/docs#quick-start",
             icon: Rocket
         },
         {
             title: "Routing",
             description: "REST APIs, parameters and routers.",
-            href: "/docs/routing",
+            href: "/docs#routing",
             icon: Route
         },
         {
             title: "Middleware",
             description: "Reusable request handlers.",
-            href: "/docs/middleware",
+            href: "/docs#middleware",
             icon: Workflow
         },
         {
             title: "WebSockets",
             description: "Events, rooms and broadcasting.",
-            href: "/docs/websockets",
+            href: "/docs#websockets",
             icon: Wifi
         },
         {
             title: "Context",
             description: "Request helpers and shared values.",
-            href: "/docs/context",
+            href: "/docs#context",
             icon: Package
         },
         {
             title: "Examples",
             description: "Complete production examples.",
-            href: "/docs/examples",
+            href: "/docs#examples",
             icon: HeartHandshake
         }
     ];
@@ -239,9 +239,9 @@
                 Get Started
             </button>
 
-            <button class="{theme.btnAlt}">
+            <a href="/docs" class="title px-5 py-2  rounded-sm {theme.btnAlt}">
                 Documentation
-            </button>
+            </a>
             
         </div>
     
@@ -354,7 +354,7 @@
     <div
         id="Docs"
         class="min-h-screen w-screen flex items-center justify-center py-20"
-    >
+        >
         <div class="w-11/12 max-w-7xl">
 
             <div class="text-center">

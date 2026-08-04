@@ -5,7 +5,7 @@ import (
 
 	gb "github.com/pav-studio/gorbit"
 	"github.com/pav-studio/gorbit/middleware"
-	"github.com/pav-studio/gorbit/example/routes"
+	"github.com/pav-studio/gorbit/example/quickstart/routes"
 )
 
 func main() {
