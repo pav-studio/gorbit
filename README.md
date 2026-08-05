@@ -517,7 +517,7 @@ Looking for more?
 
 | Resource | Description |
 |----------|-------------|
-| 📚 Documentation | https://gorbit.orbit-technologies.org/docs |
+| 📚 Documentation | https://gorbit.dev/docs |
 | 📖 Go Reference | https://pkg.go.dev/github.com/pav-studio/gorbit |
 | 💻 GitHub | https://github.com/pav-studio/gorbit |
 ---
