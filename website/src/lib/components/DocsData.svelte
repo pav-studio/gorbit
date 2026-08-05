@@ -2,7 +2,11 @@
 	import Snippet from "$lib/components/Snippet.svelte";
 
     import { docs } from "$lib/docs/content";   
-    let {section ,theme, activeNav} = $props()
+    let {        
+        section,
+        theme,
+        activeNav
+    } = $props()
 </script>
 
 <div class="md:hidden h-16"></div>
@@ -18,11 +22,11 @@
         {section.title}
     </h1>
 
-    <p class="mt-5 text-slate-400">
+    <p class="mt-5 {theme.desc}">
         {section.description}
     </p>
 
-    <div class="space-y-24 mt-20">
+    <div class="space-y-24 mt-10">
 
         {#each section.topics as topic}
 
@@ -31,7 +35,7 @@
                 class="scroll-mt-24"
             >
 
-                <h2 class="text-3xl font-bold text-sky-400">
+                <h2 class="text-3xl font-bold text-sky-500">
                     {topic.title}
                 </h2>
 
@@ -42,13 +46,13 @@
 
                         {#if block.type === "text"}
 
-                            <p class="mt-6 text-slate-400">
+                            <p class="mt-6 {theme.desc}">
                                 {block.content}
                             </p>
 
                         {:else if block.type === "code"}
 
-                            <div class="w-full my-4">
+                            <div class="w-full my-10">
                                 <Snippet
                                     bind:theme
                                     bind:dark={theme.value}
@@ -81,10 +85,8 @@
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 class="m-4 inline-flex items-center gap-2 rounded-lg
-                                    border border-sky-500/40 bg-sky-500/10
-                                    px-4 py-2 text-sky-400
-                                    hover:bg-sky-500/20 hover:text-sky-300
-                                    transition-colors whitespace-nowrap"
+                                    {theme.btn}
+                                    transition-colors "
                             >
                                 {block.text}
                                 ↗
@@ -92,7 +94,7 @@
 
                         {:else if block.type === "note"}
 
-                            <div class="mt-8 rounded-xl border border-sky-700 bg-sky-950/30 p-5 text-white">
+                            <div class="mt-8 rounded-xl border border-sky-700  p-5 {theme.text}">
 
                                 {block.content}
 

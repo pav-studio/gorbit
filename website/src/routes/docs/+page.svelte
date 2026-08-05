@@ -103,19 +103,19 @@
 
 
 <div class="w-full relative max-h-screen {theme.bg} overflow-x-hidden flex flex-row">
-    <button onclick={()=>{openModal=true}} class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md border-white text-white p-2 top-5 right-5 order-2 z-30 bg-slate/20 backdrop-blur-xl">
+    <button onclick={()=>{openModal=true}} class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md {theme.btnBlur} p-2 top-5 right-5 order-2 z-30  backdrop-blur-sm">
         <Menu />
     </button>
-    <a href="/" class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md border-white text-white p-2 top-5 left-5 order-2 z-30  bg-slate/20 backdrop-blur-xl">
+    <a href="/" class="border-2 {openModal?"hidden":"absolute md:hidden"} rounded-md {theme.btnBlur} p-2 top-5 left-5 order-2 z-30   backdrop-blur-sm">
         <Home />
     </a>
-    <div class="h-screen absolute md:static  top-0 {openModal?"left-0":"-left-full"} md:order-0 order-1 z-100 backdrop-blur-xl bg-black/20 transition-all duration-600">
+    <div class="h-screen absolute md:static  top-0 {openModal?"left-0 opacity-100 backdrop-blur-xl":"left-[-200%] opacity-0 md:opacity-100  backdrop-blur-sm"} md:order-0 order-1 z-100  md:bg-transparent transition-all duration-600">
         <DocsNav
             {docsNavigation}
             bind:activeNav
             bind:openModal
             bind:activeTopic
-            
+            bind:theme
             on:navigate={navigate}
         />
     </div>
@@ -123,8 +123,7 @@
     <div bind:this={content} class="flex-1 overflow-y-auto order-0 md:order-1">
         <DocsData 
             section={docsNavigation.find(s => s.id === activeNav)}
-            docsNavigation={docsNavigation} 
-            
+            docsNavigation={docsNavigation}
             bind:theme={theme}
             bind:activeNav
         />

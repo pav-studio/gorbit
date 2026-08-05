@@ -46,7 +46,7 @@
             contributors = await contribRes.json();
             commits = await commitRes.json();
 
-            console.log(repository);
+            // console.log(repository);
 
             if (releaseRes.ok) {
                 release = await releaseRes.json();
@@ -60,6 +60,7 @@
     function relative(date: string) {
         return new Date(date).toLocaleDateString();
     }
+    
 </script>
 
 <div

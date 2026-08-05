@@ -17,12 +17,15 @@
         HeartHandshake,
         ShieldCheck} from "lucide-svelte";
 
+    import {Theme} from '$lib/theme'
+
     const dispatch = createEventDispatcher();
     let {
         docsNavigation,
         openModal = $bindable(),
         activeNav = $bindable(),
-        activeTopic = $bindable()
+        activeTopic = $bindable(),
+        theme = $bindable()
     } = $props();
 
     let query = $state("");
@@ -48,6 +51,14 @@
     });
 
     let expanded = $state(new Set(["quick_start"]));
+
+    function changeTheme() {
+        if(theme.value==="dark") {
+            theme = Theme.light
+        } else {
+            theme = Theme.dark
+        }
+    }
   
     function toggle(id, topic) {
         activeNav = id;
@@ -72,21 +83,32 @@
     }
 </script>
 
-<div class="h-full max-h-screen border-r-2 border-gray-600 text-white flex flex-col relative ">
+<div class="h-full max-h-screen border-r-2 {theme.value==="light"?"border-slate-200":"border-slate-700"} flex flex-col relative ">
     <div class="sticky top-0 left-0">
-        <a href="/" class="w-full mt-2 md:flex hidden flex-row items-center justify-start py-2 px-5 gap-2 text-md title text-white hover:bg-white hover:text-black transition-all duration-300">
-            <ArrowLeft size={16}/>
-            Home
-        </a>
+        <div class="grow flex flex-row items-center gap-2 mt-2 justify-center">
+            <a href="/" class="w-full  md:flex hidden flex-row items-center justify-start py-2 px-5 gap-2 text-md title {theme.nav} transition-all duration-300">
+                <ArrowLeft size={16}/>
+                Home
+            </a>
+
+            <button class="p-2 {theme.nav}  rounded-md mr-2  flex" onclick={()=>changeTheme()}>
+                {#if theme.value==="light"}
+                    <MoonStar />
+                {:else}
+                    <Sun />
+                {/if}
+
+            </button>
+        </div>
         <button onclick={()=>{
             openModal=!openModal
-            console.log(openModal)
+            // console.log(openModal)
 
-        }} class="w-full mt-2 md:hidden flex flex-row items-center justify-start py-2 px-5 gap-2 text-md title text-white hover:bg-white hover:text-black transition-all duration-300">
+        }} class="w-full mt-2 md:hidden flex flex-row items-center justify-start py-2 px-5 gap-2 text-md title {theme.nav} transition-all duration-300">
             <ArrowLeft size={16}/>
             Close
         </button>
-        <div class="w-full flex flex-row items-center  text-white outline-none px-5 py-2 text-md title my-1 transition-all duration-300 focus-within:text-black focus-within:bg-white hover:bg-white/20 hover:text-white">
+        <div class="w-full flex flex-row items-center   outline-none px-5 py-2 text-md title my-1 transition-all duration-300 {theme.nav}">
             <Search size={18}/>
             <input
                 bind:value={query}
@@ -103,7 +125,7 @@
 
                 <button
                     onclick={() => goTo(topic.navId, topic.id)}
-                    class="w-full text-left px-5 py-2 hover:bg-white hover:text-black transition-all duration-300"
+                    class="w-full text-left px-5 py-2 {theme.nav} transition-all duration-300"
                 >
                     <div class="font-semibold">
                         {topic.title}
@@ -118,7 +140,7 @@
 
         {:else}
 
-            <div class="px-5 py-4 text-sm text-slate-400">
+            <div class="px-5 py-4 text-sm {theme.nav}">
                 No topics found.
             </div>
 
@@ -132,7 +154,7 @@
                     toggle(nav.id, nav.topics[0].id);
                     goTo(nav.id, nav.topics[0].id);
                 }}
-                class="w-full flex flex-row items-center justify-between px-5 py-2 {activeNav===nav.id?"bg-linear-to-br from-sky-400 to-sky-800 text-white":"hover:bg-white hover:text-black border-white text-white "} title text-md  hover:translate-x-2 transition-all duration-300">
+                class="w-full flex flex-row items-center justify-between px-5 py-2 {activeNav===nav.id?"bg-linear-to-br from-sky-400 to-sky-800 text-white":theme.navTitle} title text-md  hover:translate-x-2 transition-all duration-300">
                     <div class="flex flex-row items-center gap-2">
                         <nav.icon size={20} class="" />
                         {nav.title}
@@ -151,7 +173,7 @@
                             
                             onclick={() => goTo(nav.id, topic.id)}
                             
-                            class="w-full flex flex-row items-center justify-between px-5 py-1 {activeTopic===topic.id?"bg-linear-to-br from-white to-slate-300 text-black":"border-white text-white hover:bg-white hover:text-black"}  title text-md  hover:translate-x-2 transition-all duration-300">
+                            class="w-full flex flex-row items-center justify-between px-5 py-1 {activeTopic===topic.id?theme.navTopicAccent: theme.navTopic} title text-md  hover:translate-x-2 transition-all duration-300">
                                 <div class="flex flex-row items-center gap-2">
                                 {
                                         docsNavigation
