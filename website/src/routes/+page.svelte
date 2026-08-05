@@ -225,7 +225,7 @@
             A lightweight, fast, and expressive web framework for Go inspired by the simplicity of Express.js.
         </div>
     
-        <div class="w-full md:w-1/2 mx-auto">
+        <div class="w-full md:w-1/2 mx-auto px-4">
             <Snippet 
                 bind:theme 
                 title="Import gorbit right now" 
@@ -345,7 +345,7 @@
 
 
     <div id="QuickStart"  class="my-5 relative pt-15 pb-5 overflow-y-hidden w-screen max-w-screen flex flex-col justify-center gap-5 z-4">
-        <div class="w-full md:w-3/4 mx-auto">
+        <div class="w-full md:w-3/4 mx-auto px-4">
             <Snippet bind:theme title="Quickstart, paste this in your entry point file" 
                 code={docs['quickstart'].data}
                 bind:dark={theme.value}

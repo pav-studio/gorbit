@@ -33,6 +33,9 @@
     let openModal = $state(false)
     let activeNav = $state("quick_start");
     let activeTopic = $state("install-go");
+    let activeIndex = $derived(
+        docsNavigation.findIndex(section => section.id === activeNav)
+    );
 
     let content;
 
@@ -42,7 +45,12 @@
         activeTopic = e.detail.topic;
 
         tick().then(() => {
-            document.getElementById(e.detail.topic)?.scrollIntoView({
+            const id =
+                e.detail.target === "section"
+                    ? e.detail.nav
+                    : e.detail.topic;
+
+            document.getElementById(id)?.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
@@ -125,6 +133,13 @@
             section={docsNavigation.find(s => s.id === activeNav)}
             docsNavigation={docsNavigation}
             bind:theme={theme}
+            previous={activeIndex > 0 ? docsNavigation[activeIndex - 1] : null}
+            next={
+                activeIndex < docsNavigation.length - 1
+                    ? docsNavigation[activeIndex + 1]
+                    : null
+            }
+            on:navigate={navigate}
             bind:activeNav
         />
     </div>

@@ -72,13 +72,14 @@
         expanded = new Set(expanded);
     }
 
-    function goTo(navId, topicId) {
+    function goTo(navId, topicId, target = "topic") {
         activeNav = navId;
         activeTopic = topicId;
 
         dispatch("navigate", {
             nav: navId,
-            topic: topicId
+            topic: topicId,
+            target
         });
     }
 </script>
@@ -124,7 +125,7 @@
             {#each filteredTopics as topic}
 
                 <button
-                    onclick={() => goTo(topic.navId, topic.id)}
+                    onclick={() => goTo(nav.id, topic.id, "topic")}
                     class="w-full text-left px-5 py-2 {theme.nav} transition-all duration-300"
                 >
                     <div class="font-semibold">
@@ -152,7 +153,7 @@
                 
                 onclick={() => {
                     toggle(nav.id, nav.topics[0].id);
-                    goTo(nav.id, nav.topics[0].id);
+                    goTo(nav.id, nav.topics[0].id, "section");;
                 }}
                 class="w-full flex flex-row items-center justify-between px-5 py-2 {activeNav===nav.id?"bg-linear-to-br from-sky-400 to-sky-800 text-white":theme.navTitle} title text-md  hover:translate-x-2 transition-all duration-300">
                     <div class="flex flex-row items-center gap-2">
@@ -171,7 +172,7 @@
                         {#each nav.topics as topic, j}
                             <button  
                             
-                            onclick={() => goTo(nav.id, topic.id)}
+                            onclick={() => goTo(nav.id, topic.id, "topic")}
                             
                             class="w-full flex flex-row items-center justify-between px-5 py-1 {activeTopic===topic.id?theme.navTopicAccent: theme.navTopic} title text-md  hover:translate-x-2 transition-all duration-300">
                                 <div class="flex flex-row items-center gap-2">

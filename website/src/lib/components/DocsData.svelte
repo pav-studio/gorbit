@@ -1,12 +1,30 @@
 <script>
 	import Snippet from "$lib/components/Snippet.svelte";
+    import { createEventDispatcher } from "svelte";
 
     import { docs } from "$lib/docs/content";   
+	import { ChevronLeft } from "@lucide/svelte";
+	import { ChevronRight } from "lucide-svelte";
+
     let {        
         section,
         theme,
-        activeNav
+        activeNav,
+        next,
+        previous
     } = $props()
+
+    const dispatch = createEventDispatcher();
+
+
+
+    function gotoSection(section) {
+        dispatch("navigate", {
+            nav: section.id,
+            topic: section.topics[0].id,
+            target:"section"
+        });
+    }
 </script>
 
 <div class="md:hidden h-16"></div>
@@ -18,13 +36,45 @@
     class="px-5 md:px-16 md:py-20 py-14"
     >
 
-    <h1 class="text-5xl font-bold {theme.text}">
-        {section.title}
-    </h1>
+    <div class="flex flex-row items-center justify-between">
+        <div class="flex flex-col items-start">
+            <h1 class="text-5xl font-bold {theme.text}">
+                {section.title}
+            </h1>
 
-    <p class="mt-5 {theme.desc}">
-        {section.description}
-    </p>
+            <p class="mt-5 {theme.desc}">
+                {section.description}
+            </p>
+        </div>
+
+        
+
+        <div class="flex flex-row gap-10">
+            {#if previous}
+                <button
+                    onclick={() => gotoSection(previous)}
+                    class="flex flex-col items-center outline-none {theme.text}"
+                >
+                    <div class="text-sky-400 font-semibold tracking-wider border-b-2 border-sky-500 text-3xl whitespace-nowrap flex flex-row items-center">
+                        <ChevronLeft/> Prev
+                    </div>
+                    <div>{previous.title}</div>
+                </button>
+                {/if}
+
+                {#if next}
+                <button
+                    onclick={() => gotoSection(next)}
+                    class="flex flex-col items-center outline-none {theme.text}"
+                >
+                    <div class="text-sky-400 font-semibold tracking-wider border-b-2 border-sky-500 text-3xl whitespace-nowrap flex flex-row items-center">
+                        Next <ChevronRight/>
+                    </div>
+                    <div>{next.title}</div>
+                </button>
+                {/if}
+        </div>
+    </div>
 
     <div class="space-y-24 mt-10">
 
@@ -115,3 +165,28 @@
 </section>
 
 
+<div class="flex flex-row gap-10 w-full justify-center mb-20">
+    {#if previous}
+        <button
+            onclick={() => gotoSection(previous)}
+            class="flex flex-col items-center outline-none {theme.text}"
+        >
+            <div class="text-sky-400 font-semibold tracking-wider border-b-2 border-sky-500 text-3xl whitespace-nowrap flex flex-row items-center">
+                <ChevronLeft/> Prev
+            </div>
+            <div>{previous.title}</div>
+        </button>
+        {/if}
+
+        {#if next}
+        <button
+            onclick={() => gotoSection(next)}
+            class="flex flex-col items-center outline-none {theme.text}"
+        >
+            <div class="text-sky-400 font-semibold tracking-wider border-b-2 border-sky-500 text-3xl whitespace-nowrap flex flex-row items-center">
+                Next <ChevronRight/>
+            </div>
+            <div>{next.title}</div>
+        </button>
+        {/if}
+</div>
