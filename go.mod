@@ -1,4 +1,4 @@
-module github.com/pav-studio/gorbit/v2
+module github.com/pav-studio/gorbit
 
 go 1.26.5
 
