@@ -2,8 +2,8 @@ package routes
 
 import (
 	gb "github.com/pav-studio/gorbit"
-	"github.com/pav-studio/gorbit/example/quickstart/controllers"
-	"github.com/pav-studio/gorbit/example/quickstart/middleware"
+	"github.com/pav-studio/gorbit/example/rest-api/controllers"
+	"github.com/pav-studio/gorbit/example/rest-api/middleware"
 )
 
 var Auth = gb.NewRouter()

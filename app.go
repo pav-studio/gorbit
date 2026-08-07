@@ -8,6 +8,7 @@ import (
 	"log"
 	"github.com/google/uuid"
 	"encoding/json"
+	"github.com/pav-studio/gorbit/utils"
 	"context"
 	coderws "github.com/coder/websocket"
 )
@@ -37,7 +38,6 @@ type Route struct {
 	WebSocket bool
 	WSHandler WSHandler
 }
-
 
 // Router groups routes and middleware that can be mounted
 // onto a Server.
@@ -408,33 +408,15 @@ func (s *Server) OPTIONS(path string, handlers ...Handler) {
 
 
 func getLocalIP() string {
-	interfaces, err := net.Interfaces()
+	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		return ""
 	}
+	defer conn.Close()
 
-	for _, iface := range interfaces {
-		if iface.Flags&net.FlagUp == 0 ||
-			iface.Flags&net.FlagLoopback != 0 {
-			continue
-		}
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
-		addrs, _ := iface.Addrs()
-
-		for _, addr := range addrs {
-			ipnet, ok := addr.(*net.IPNet)
-			if !ok || ipnet.IP.IsLoopback() {
-				continue
-			}
-
-			ip := ipnet.IP.To4()
-			if ip != nil {
-				return ip.String()
-			}
-		}
-	}
-
-	return ""
+	return localAddr.IP.String()
 }
 
 // Start starts the HTTP server.
@@ -452,24 +434,34 @@ func getLocalIP() string {
 //	log.Fatal(app.Start())
 func (s *Server) Start() error {
 	
-	local := "http://localhost" + s.port
-	public := "http://" + getLocalIP() + s.port
+	addresses, err := utils.GetNetworkAddresses()
+	if err != nil {
+		panic(err)
+	}
+
+	
+
 	fmt.Printf(`
 						
 		╔══════════════════════════════════════════════════════╗
 		║                      G O R B I T                     ║
 		╠══════════════════════════════════════════════════════╣
-		║   Server      Running                                ║
-		║   Public IP   %-39s║
-		║   Listening   %-39s║
+		║   Server      Running                               ║
 		║   Routes      %-39d║
 		║   Middleware  %-39d║
-		║   Status      Ready to accept requests               ║
+		║   Status      Ready to accept requests              ║
 		╚══════════════════════════════════════════════════════╝
 
-	`, public, local, len(s.routes), len(s.middlewares))
+	`, len(s.routes), len(s.middlewares))
 
-	fmt.Println("")
+	fmt.Println("Available URLs:")
+	fmt.Printf("  %-18s http://localhost%s\n", "Localhost", s.port)
+
+	for _, addr := range addresses {
+		fmt.Printf("%-20s http://%s%s\n", addr.Name, addr.Value, s.port)
+	}
+
+	fmt.Println()
 
 	return http.ListenAndServe(s.port, s.mux)
 }
