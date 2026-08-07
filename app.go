@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"net"
 	"log"
 	"github.com/google/uuid"
 	"encoding/json"
@@ -407,18 +406,6 @@ func (s *Server) OPTIONS(path string, handlers ...Handler) {
 
 
 
-func getLocalIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return ""
-	}
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP.String()
-}
-
 // Start starts the HTTP server.
 //
 // Start blocks until the server stops or returns an error.
@@ -435,10 +422,11 @@ func getLocalIP() string {
 func (s *Server) Start() error {
 	
 	addresses, err := utils.GetNetworkAddresses()
-	if err != nil {
-		panic(err)
-	}
 
+	if err != nil {
+		log.Printf("[Network] Failed to detect addresses: %v", err)
+		addresses = []utils.NetworkAddress{}
+	}
 	
 
 	fmt.Printf(`
