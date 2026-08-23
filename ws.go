@@ -233,11 +233,11 @@ func (c *WSClient) On(event string, handler EventHandler) {
 // The payload is automatically encoded as JSON.
 func (c *WSClient) Emit(event string, data any) error {
 
-	log.Printf(
-		"[WS %s] Emit('%s')",
-		c.ID,
-		event,
-	)
+	// log.Printf(
+	// 	"[WS %s] Emit('%s')",
+	// 	c.ID,
+	// 	event,
+	// )
 
 	payload, err := json.Marshal(data)
 	if err != nil {
@@ -268,11 +268,11 @@ func (c *WSClient) Emit(event string, data any) error {
 		return err
 	}
 
-	log.Printf(
-		"[WS %s] Sending %d bytes",
-		c.ID,
-		len(bytes),
-	)
+	// log.Printf(
+	// 	"[WS %s] Sending %d bytes",
+	// 	c.ID,
+	// 	len(bytes),
+	// )
 
 	err = c.Conn.Write(
 		c.Context,
@@ -291,10 +291,10 @@ func (c *WSClient) Emit(event string, data any) error {
 		return err
 	}
 
-	log.Printf(
-		"[WS %s] Emit complete",
-		c.ID,
-	)
+	// log.Printf(
+	// 	"[WS %s] Emit complete",
+	// 	c.ID,
+	// )
 
 	return nil
 }
@@ -340,11 +340,11 @@ func (c *WSClient) Listen() {
 			len(msg),
 		)
 
-		log.Printf(
-			"[WS %s] Raw message: %s",
-			c.ID,
-			string(msg),
-		)
+		// log.Printf(
+		// 	"[WS %s] Raw message: %s",
+		// 	c.ID,
+		// 	string(msg),
+		// )
 
 		var packet Packet
 
@@ -359,11 +359,11 @@ func (c *WSClient) Listen() {
 			continue
 		}
 
-		log.Printf(
-			"[WS %s] Event='%s'",
-			c.ID,
-			packet.Event,
-		)
+		// log.Printf(
+		// 	"[WS %s] Event='%s'",
+		// 	c.ID,
+		// 	packet.Event,
+		// )
 
 		handler, ok := c.events[packet.Event]
 
@@ -386,11 +386,11 @@ func (c *WSClient) Listen() {
 
 		handler(c, packet.Data)
 
-		log.Printf(
-			"[WS %s] Handler '%s' completed",
-			c.ID,
-			packet.Event,
-		)
+		// log.Printf(
+		// 	"[WS %s] Handler '%s' completed",
+		// 	c.ID,
+		// 	packet.Event,
+		// )
 	}
 }
 
